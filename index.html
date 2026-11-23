@@ -41,10 +41,40 @@
 </head>
 <body class="bg-brand-black text-zinc-100 font-sans antialiased selection:bg-yellow-500 selection:text-black min-h-screen flex flex-col">
 
-    <!-- Custom Notification Banner (Replaces alert) -->
+    <!-- Custom Notification Banner -->
     <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-zinc-900 border border-yellow-500/50 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm">
         <i class="fa-solid fa-circle-check text-yellow-400 text-lg"></i>
         <p id="toast-message" class="text-sm font-medium">Action completed.</p>
+    </div>
+
+    <!-- ==================== SHOWCASE LIGHTBOX REVIEW MODAL ==================== -->
+    <div id="showcase-review-modal" onclick="if(event.target===this) closeShowcaseReview()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="relative w-full max-w-3xl bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800 bg-zinc-900/90">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
+                    <h3 id="review-modal-caption" class="text-sm sm:text-base font-bold text-white truncate">GADELA Showcase</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="navigateShowcaseReview(-1)" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 flex items-center justify-center cursor-pointer" title="Previous">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button type="button" onclick="navigateShowcaseReview(1)" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 flex items-center justify-center cursor-pointer" title="Next">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                    <button type="button" onclick="closeShowcaseReview()" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-red-500/80 text-zinc-200 hover:text-white flex items-center justify-center cursor-pointer" title="Close">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="review-modal-media-container" class="bg-black flex items-center justify-center max-h-[75vh] min-h-[280px] overflow-hidden">
+                <!-- Populated dynamically with full-size image or playable video -->
+            </div>
+            <div class="px-5 py-3 bg-zinc-900/60 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
+                <span id="review-modal-counter">1 / 1</span>
+                <span>GADELA — Money Hunter Lookbook</span>
+            </div>
+        </div>
     </div>
 
     <!-- ==================== OWNER ADMIN CONTROL MODAL ==================== -->
@@ -152,7 +182,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: LOGO & SHOWCASE PHOTOS -->
+                <!-- TAB 2: LOGO & SHOWCASE PHOTOS/VIDEOS -->
                 <div id="admin-panel-branding" class="hidden space-y-5">
                     <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 space-y-3">
                         <h4 class="text-sm font-bold text-white uppercase tracking-wider">Update GADELA Brand Logo</h4>
@@ -177,23 +207,24 @@
                     </div>
 
                     <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 space-y-3">
-                        <h4 class="text-sm font-bold text-white uppercase tracking-wider">Add Photo to GADELA SHOWCASE</h4>
+                        <h4 class="text-sm font-bold text-white uppercase tracking-wider">Add Photo or Video to GADELA SHOWCASE</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
                                 <label class="block text-[11px] text-zinc-400 uppercase mb-1">Caption / Name</label>
                                 <input type="text" id="new-showcase-caption" placeholder="e.g. Lagos Street Look" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
                             </div>
                             <div>
-                                <label class="block text-[11px] text-zinc-400 uppercase mb-1">Photo URL</label>
-                                <input type="url" id="new-showcase-url" placeholder="https://..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+                                <label class="block text-[11px] text-zinc-400 uppercase mb-1">Photo or Video URL (.mp4)</label>
+                                <input type="url" id="new-showcase-url" placeholder="https://... (Image or MP4 link)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
                             </div>
                             <div>
-                                <label class="block text-[11px] text-zinc-400 uppercase mb-1">Or Upload Photo</label>
-                                <input type="file" id="new-showcase-file" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer">
+                                <label class="block text-[11px] text-zinc-400 uppercase mb-1">Or Upload Photo / Video</label>
+                                <input type="file" id="new-showcase-file" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer">
                             </div>
                         </div>
+                        <p class="text-[11px] text-zinc-500">Tip: Short videos (under 8MB) can be uploaded directly from your phone/PC, or paste any hosted .mp4 video URL for GitHub live sync.</p>
                         <button onclick="addShowcaseItem()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-pointer">
-                            <i class="fa-solid fa-plus mr-1.5"></i> Add to Showcase
+                            <i class="fa-solid fa-plus mr-1.5"></i> Add Media to Showcase
                         </button>
                         <div id="admin-showcase-list" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2"></div>
                     </div>
@@ -206,9 +237,9 @@
                             <i class="fa-solid fa-cloud-arrow-up"></i> How to Update Everyone's Phone After GitHub Launch
                         </h4>
                         <p class="text-xs text-zinc-300 leading-relaxed">
-                            1. Add your photos above using image links (for example, upload images to your GitHub repo or ImgBB/Cloudinary and paste the links).<br>
+                            1. Add your photos/videos above using media links (for example, upload files to your GitHub repo or Cloudinary/ImgBB and paste the links).<br>
                             2. Click <strong>"Copy Store Data JSON"</strong> below.<br>
-                            3. In your GitHub repository, paste that text into a file named <code class="text-yellow-300 bg-zinc-950 px-1.5 py-0.5 rounded">gadela-catalog.json</code> (or any hosted JSON link). Every visitor on Google will automatically see your new drops!
+                            3. In your GitHub repository, paste that text into a file named <code class="text-yellow-300 bg-zinc-950 px-1.5 py-0.5 rounded">gadela-catalog.json</code>. Every visitor on Google will automatically see your new drops!
                         </p>
                         <div class="flex flex-wrap gap-2.5 pt-1">
                             <button onclick="exportCatalogJSON()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-pointer">
@@ -310,7 +341,7 @@
                         </button>
                     </div>
 
-                    <!-- Active Category Builder: Colors, Sizes, Add Current Piece & Dynamic Design Slots -->
+                    <!-- Active Category Builder -->
                     <div class="bg-zinc-950/70 border border-zinc-800/90 rounded-xl p-4 sm:p-5 space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
                             <div>
@@ -334,7 +365,7 @@
                             <div id="size-options-container" class="flex flex-wrap gap-2"></div>
                         </div>
 
-                        <!-- Quick Add Current Color + Size Piece Button (works even before designs are uploaded) -->
+                        <!-- Quick Add Current Piece Button -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-900/80 border border-zinc-800 rounded-xl p-3">
                             <div class="text-xs text-zinc-300">
                                 <span class="font-semibold text-white">Multi-Select Mode:</span> Add multiple items across T-Shirts, Hoodies, Pants, or Shoes.
@@ -345,7 +376,7 @@
                             </button>
                         </div>
 
-                        <!-- Dynamic Design Gallery Slots (Multi-Select Enabled) -->
+                        <!-- Dynamic Design Gallery Slots -->
                         <div class="pt-1">
                             <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                                 <span class="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
@@ -357,7 +388,7 @@
                             <div id="design-slots-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                         </div>
 
-                        <!-- Selected Bag / Multiple Clothes List inside Collections -->
+                        <!-- Selected Bag / Multiple Clothes List -->
                         <div class="pt-4 border-t border-zinc-800/80">
                             <div class="flex items-center justify-between mb-2.5">
                                 <h4 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
@@ -417,7 +448,7 @@
                             <h2 class="font-display text-lg sm:text-xl font-bold tracking-wider text-white uppercase">
                                 GADELA SHOWCASE
                             </h2>
-                            <p class="text-xs text-zinc-400 mt-0.5">Community & lookbook gallery — people rocking GADELA.</p>
+                            <p class="text-xs text-zinc-400 mt-0.5">Tap any photo or video to view & review in full screen.</p>
                         </div>
                         <span id="showcase-status-badge" class="text-[11px] uppercase tracking-wider text-zinc-500 border border-zinc-800 px-2.5 py-1 rounded-lg">
                             Empty
@@ -632,7 +663,6 @@
             }
         };
 
-        // Active builder state + multi-item selected bag
         let state = {
             category: 'T-Shirt',
             color: 'Black',
@@ -655,7 +685,6 @@
             return `${category}|${designTitle || ''}|${color}|${size}`;
         }
 
-        // Toggle a design card in the multi-select grid (adds if not selected, removes if already selected)
         function toggleDesignSelection(item) {
             const key = buildItemKey(state.category, item.title, state.color, state.size);
             const existingIndex = state.selectedItems.findIndex(entry => entry.key === key);
@@ -681,7 +710,6 @@
             updateSummaryDisplay();
         }
 
-        // Add current active category + color + size (even when no design image is uploaded yet)
         function addCurrentConfigurationToBag() {
             const key = buildItemKey(state.category, '', state.color, state.size);
             const existing = state.selectedItems.find(entry => entry.key === key);
@@ -835,7 +863,7 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(storeData));
             } catch (e) {
-                showToast('Storage full! Try using image URLs instead of large files.');
+                showToast('Storage full! Try using image/video URLs instead of large files.');
             }
             renderLogo();
             renderDesignSlots();
@@ -881,20 +909,23 @@
             }
 
             slotHelper.textContent = items.length > 0
-                ? 'Tap multiple designs to select more than one'
+                ? 'Tap multiple designs to add them to your selection'
                 : 'Empty Slots — Ready for Images';
 
-            items.forEach(item => {
-                const key = buildItemKey(state.category, item.title, state.color, state.size);
-                const selectedEntry = state.selectedItems.find(entry => entry.key === key);
-                const isSelected = Boolean(selectedEntry);
+            items.forEach((item) => {
+                const activeKey = buildItemKey(state.category, item.title, state.color, state.size);
+                const matchingEntries = state.selectedItems.filter(
+                    entry => entry.category === state.category && entry.designTitle === item.title
+                );
+                const isSelectedInCurrentVariant = state.selectedItems.some(entry => entry.key === activeKey);
+                const totalSelectedForDesign = matchingEntries.reduce((sum, entry) => sum + entry.qty, 0);
 
                 const card = document.createElement('button');
                 card.type = 'button';
                 card.onclick = () => toggleDesignSelection(item);
 
                 card.className = `aspect-[4/5] rounded-xl border-2 overflow-hidden relative group flex flex-col justify-end text-left transition-all cursor-pointer ${
-                    isSelected
+                    totalSelectedForDesign > 0
                         ? 'border-yellow-400 ring-2 ring-yellow-400/30'
                         : 'border-zinc-800 hover:border-zinc-600 bg-zinc-900'
                 }`;
@@ -902,10 +933,11 @@
                 card.innerHTML = `
                     <img src="${item.image}" alt="${item.title}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/400x500/18181b/eab308?text=GADELA'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-                    ${isSelected ? `<span class="absolute top-2 right-2 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">Selected ×${selectedEntry.qty}</span>` : ''}
+                    ${totalSelectedForDesign > 0 ? `<span class="absolute top-2 right-2 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">Selected (×${totalSelectedForDesign})</span>` : ''}
                     <div class="relative z-10 p-2.5">
                         <p class="text-xs font-bold text-white leading-tight truncate">${item.title}</p>
                         ${item.price ? `<p class="text-[11px] font-semibold text-yellow-400 mt-0.5">${item.price}</p>` : ''}
+                        <p class="text-[10px] text-zinc-300 mt-0.5">${isSelectedInCurrentVariant ? 'Tap to unselect' : 'Tap to add'}</p>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -925,6 +957,54 @@
             }
         }
 
+        function isVideoEntry(entry) {
+            if (!entry) return false;
+            if (entry.mediaType === 'video') return true;
+            const src = (entry.mediaUrl || entry.image || '').toLowerCase();
+            return src.startsWith('data:video/') || /\.(mp4|webm|ogg|mov)(\?.*)?$/.test(src);
+        }
+
+        let currentReviewIndex = 0;
+
+        function openShowcaseReview(index) {
+            const list = storeData.showcase || [];
+            if (!list.length) return;
+            currentReviewIndex = ((index % list.length) + list.length) % list.length;
+
+            const entry = list[currentReviewIndex];
+            const modal = document.getElementById('showcase-review-modal');
+            const captionEl = document.getElementById('review-modal-caption');
+            const counterEl = document.getElementById('review-modal-counter');
+            const mediaContainer = document.getElementById('review-modal-media-container');
+            const src = entry.mediaUrl || entry.image || '';
+
+            captionEl.textContent = entry.caption || 'GADELA Look';
+            counterEl.textContent = `${currentReviewIndex + 1} of ${list.length}`;
+
+            if (isVideoEntry(entry)) {
+                mediaContainer.innerHTML = `
+                    <video src="${src}" controls autoplay playsinline class="max-h-[75vh] w-full object-contain bg-black"></video>
+                `;
+            } else {
+                mediaContainer.innerHTML = `
+                    <img src="${src}" alt="${entry.caption || 'GADELA Showcase'}" class="max-h-[75vh] w-full object-contain bg-black" onerror="this.src='https://placehold.co/800x800/18181b/eab308?text=GADELA'">
+                `;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeShowcaseReview() {
+            const modal = document.getElementById('showcase-review-modal');
+            const mediaContainer = document.getElementById('review-modal-media-container');
+            if (mediaContainer) mediaContainer.innerHTML = '';
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function navigateShowcaseReview(step) {
+            openShowcaseReview(currentReviewIndex + step);
+        }
+
         function renderShowcase() {
             const grid = document.getElementById('showcase-grid');
             const badge = document.getElementById('showcase-status-badge');
@@ -933,21 +1013,37 @@
             grid.innerHTML = '';
 
             if (list.length > 0) {
-                badge.textContent = `${list.length} Photo${list.length > 1 ? 's' : ''}`;
+                badge.textContent = `${list.length} Item${list.length > 1 ? 's' : ''}`;
                 badge.classList.replace('text-zinc-500', 'text-yellow-400');
             } else {
                 badge.textContent = 'Empty';
                 badge.classList.replace('text-yellow-400', 'text-zinc-500');
             }
 
-            list.forEach(entry => {
-                const card = document.createElement('div');
-                card.className = 'min-h-[160px] rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden relative flex flex-col justify-end group';
+            list.forEach((entry, idx) => {
+                const src = entry.mediaUrl || entry.image || '';
+                const isVideo = isVideoEntry(entry);
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.onclick = () => openShowcaseReview(idx);
+                card.className = 'min-h-[160px] rounded-xl border border-zinc-800 hover:border-yellow-400/80 bg-zinc-950 overflow-hidden relative flex flex-col justify-end text-left group cursor-pointer transition-all';
+
+                const mediaHtml = isVideo
+                    ? `<video src="${src}" muted loop playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"></video>
+                       <span class="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-black/75 border border-yellow-400/60 text-yellow-400 flex items-center justify-center shadow-lg">
+                           <i class="fa-solid fa-play text-xs ml-0.5"></i>
+                       </span>`
+                    : `<img src="${src}" alt="${entry.caption || 'GADELA Showcase'}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/400x400/18181b/eab308?text=GADELA'">
+                       <span class="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-black/65 text-white/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                           <i class="fa-solid fa-expand text-[11px]"></i>
+                       </span>`;
+
                 card.innerHTML = `
-                    <img src="${entry.image}" alt="${entry.caption || 'GADELA Showcase'}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/400x400/18181b/eab308?text=GADELA'">
+                    ${mediaHtml}
                     <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent"></div>
-                    <div class="relative z-10 p-2.5">
+                    <div class="relative z-10 p-2.5 w-full">
                         <span class="text-xs font-semibold text-white block truncate">${entry.caption || 'GADELA Look'}</span>
+                        <span class="text-[10px] text-yellow-400/90 block mt-0.5">${isVideo ? 'Tap to play video' : 'Tap to review'}</span>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -959,9 +1055,9 @@
                 const div = document.createElement('div');
                 div.className = 'min-h-[160px] rounded-xl border-2 border-dashed border-zinc-800 bg-zinc-950/50 flex flex-col items-center justify-center p-4 text-center';
                 div.innerHTML = `
-                    <i class="fa-solid fa-user-astronaut text-zinc-700 text-2xl mb-2"></i>
+                    <i class="fa-solid fa-film text-zinc-700 text-2xl mb-2"></i>
                     <span class="text-xs text-zinc-500 font-medium">Showcase ${num}</span>
-                    <span class="text-[10px] text-zinc-600 mt-0.5">Awaiting Photo</span>
+                    <span class="text-[10px] text-zinc-600 mt-0.5">Photo or Video Slot</span>
                 `;
                 grid.appendChild(div);
             }
@@ -1290,6 +1386,20 @@ _(Note: Delivery fee depends on location)_`
             });
         }
 
+        function readVideoDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const maxBytes = 8 * 1024 * 1024;
+                if (file.size > maxBytes) {
+                    reject(new Error('Video file is larger than 8MB. Please use a shorter clip or paste a hosted .mp4 URL.'));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => reject(new Error('Could not read video file.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
         async function addCollectionItem() {
             const category = document.getElementById('new-item-category').value;
             const title = document.getElementById('new-item-title').value.trim() || `${category} Drop #${(storeData.collections[category]?.length || 0) + 1}`;
@@ -1362,33 +1472,51 @@ _(Note: Delivery fee depends on location)_`
             const urlInput = document.getElementById('new-showcase-url').value.trim();
             const fileInput = document.getElementById('new-showcase-file');
 
-            let finalImage = urlInput;
-            if (!finalImage && fileInput.files && fileInput.files[0]) {
-                finalImage = await readCompressedImage(fileInput.files[0]);
+            let finalMedia = urlInput;
+            let mediaType = 'image';
+
+            if (urlInput) {
+                mediaType = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(urlInput) ? 'video' : 'image';
+            } else if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                if (file.type.startsWith('video/')) {
+                    try {
+                        finalMedia = await readVideoDataUrl(file);
+                        mediaType = 'video';
+                    } catch (err) {
+                        showToast(err.message);
+                        return;
+                    }
+                } else {
+                    finalMedia = await readCompressedImage(file);
+                    mediaType = 'image';
+                }
             }
 
-            if (!finalImage) {
-                showToast('Enter a photo URL or choose a file for Showcase.');
+            if (!finalMedia) {
+                showToast('Enter a photo/video URL or choose a file for Showcase.');
                 return;
             }
 
             storeData.showcase.push({
                 id: Date.now(),
                 caption,
-                image: finalImage
+                mediaType,
+                mediaUrl: finalMedia,
+                image: finalMedia
             });
 
             document.getElementById('new-showcase-caption').value = '';
             document.getElementById('new-showcase-url').value = '';
             fileInput.value = '';
             saveStoreLocally();
-            showToast('Photo added to GADELA Showcase!');
+            showToast(`${mediaType === 'video' ? 'Video' : 'Photo'} added to GADELA Showcase!`);
         }
 
         function removeShowcaseItem(id) {
             storeData.showcase = storeData.showcase.filter(item => item.id !== id);
             saveStoreLocally();
-            showToast('Showcase photo removed.');
+            showToast('Showcase item removed.');
         }
 
         function renderAdminLists() {
@@ -1424,11 +1552,17 @@ _(Note: Delivery fee depends on location)_`
             const showcaseList = document.getElementById('admin-showcase-list');
             showcaseList.innerHTML = '';
             (storeData.showcase || []).forEach(entry => {
+                const src = entry.mediaUrl || entry.image || '';
+                const isVideo = isVideoEntry(entry);
+                const thumbHtml = isVideo
+                    ? `<div class="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center shrink-0 text-yellow-400"><i class="fa-solid fa-video text-xs"></i></div>`
+                    : `<img src="${src}" class="w-9 h-9 rounded-lg object-cover shrink-0">`;
+
                 const card = document.createElement('div');
                 card.className = 'flex items-center justify-between gap-2 bg-zinc-950 border border-zinc-800 rounded-xl p-2';
                 card.innerHTML = `
                     <div class="flex items-center gap-2 min-w-0">
-                        <img src="${entry.image}" class="w-9 h-9 rounded-lg object-cover shrink-0">
+                        ${thumbHtml}
                         <span class="text-xs text-zinc-300 truncate">${entry.caption}</span>
                     </div>
                     <button onclick="removeShowcaseItem(${entry.id})" class="text-zinc-500 hover:text-red-400 p-1.5 cursor-pointer">
