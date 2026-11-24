@@ -16,6 +16,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome for WhatsApp & UI Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRCode Generator Library for Scannable Order Receipts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -31,6 +33,7 @@
                             card: '#121215',
                             border: '#27272a',
                             gold: '#eab308',
+                            red: '#dc2626',
                             accent: '#fafafa'
                         }
                     }
@@ -45,6 +48,108 @@
     <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-zinc-900 border border-yellow-500/50 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm">
         <i class="fa-solid fa-circle-check text-yellow-400 text-lg"></i>
         <p id="toast-message" class="text-sm font-medium">Action completed.</p>
+    </div>
+
+    <!-- ==================== CLOTHING ITEM QUICK-VIEW MODAL ==================== -->
+    <div id="product-view-modal" onclick="if(event.target===this) closeProductViewModal()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden my-auto flex flex-col">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800 bg-zinc-900/90">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
+                    <span id="pv-category-badge" class="text-xs font-bold uppercase tracking-wider text-yellow-400">T-Shirt</span>
+                </div>
+                <button type="button" onclick="closeProductViewModal()" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-red-600 text-zinc-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Close">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5">
+                <!-- Full Product Image -->
+                <div class="aspect-[4/5] rounded-xl overflow-hidden bg-black border border-zinc-800 flex items-center justify-center">
+                    <img id="pv-image" src="" alt="Product Preview" class="w-full h-full object-cover">
+                </div>
+
+                <!-- Product Details & Variant Selection -->
+                <div class="flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div>
+                            <h3 id="pv-title" class="font-display text-xl font-bold text-white leading-snug">Design Title</h3>
+                            <p id="pv-price" class="text-sm font-bold text-yellow-400 mt-1 hidden"></p>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] uppercase tracking-wider text-zinc-400 mb-1.5">Choose Color:</label>
+                            <div id="pv-colors" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] uppercase tracking-wider text-zinc-400 mb-1.5">Choose Size:</label>
+                            <div id="pv-sizes" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 space-y-2">
+                        <button type="button" onclick="confirmAddFromProductView()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            <span>Add Piece to Order</span>
+                        </button>
+                        <button type="button" onclick="closeProductViewModal()" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-semibold text-xs py-2.5 px-4 rounded-xl transition-all cursor-pointer">
+                            Continue Browsing
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== BLACK & RED OFFICIAL ORDER RECEIPT MODAL ==================== -->
+    <div id="receipt-modal" onclick="if(event.target===this) closeReceiptModal()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-zinc-950 border-2 border-red-600/80 rounded-2xl w-full max-w-lg shadow-[0_0_50px_rgba(220,38,38,0.25)] overflow-hidden my-auto flex flex-col">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-red-900/60 bg-gradient-to-r from-black via-red-950/40 to-black">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <h3 class="font-display text-sm sm:text-base font-bold text-white uppercase tracking-wider">
+                        GADELA Official Order Receipt
+                    </h3>
+                </div>
+                <button type="button" onclick="closeReceiptModal()" class="w-8 h-8 rounded-lg bg-zinc-900 hover:bg-red-600 text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Generated Receipt Image Preview -->
+            <div class="p-4 sm:p-5 bg-black flex flex-col items-center justify-center max-h-[62vh] overflow-y-auto">
+                <img id="receipt-preview-img" src="" alt="GADELA Official Order Receipt" class="w-full max-w-sm rounded-xl border border-red-600/50 shadow-2xl">
+            </div>
+
+            <!-- Action Buttons to Send Receipt Image to WhatsApp DM -->
+            <div class="p-4 sm:p-5 bg-zinc-950 border-t border-red-900/50 space-y-2.5">
+                <button type="button" onclick="shareReceiptImageToWhatsApp()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-sm py-3.5 px-5 rounded-xl transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-red-950/60 cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span id="share-receipt-btn-label">Send Receipt Image to WhatsApp DM</span>
+                </button>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button type="button" onclick="downloadReceiptImage()" class="bg-zinc-900 hover:bg-zinc-800 border border-red-800/50 text-zinc-200 font-semibold text-xs py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-download text-red-400"></i>
+                        <span>Save Receipt Image</span>
+                    </button>
+                    <a id="receipt-open-wa-direct"
+                       href="https://api.whatsapp.com/send?phone=2347080713892"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="bg-zinc-900 hover:bg-zinc-800 border border-emerald-700/50 text-emerald-300 font-semibold text-xs py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
+                        <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+                        <span>Open WhatsApp Chat</span>
+                    </a>
+                </div>
+                <p id="receipt-helper-note" class="text-[11px] text-zinc-400 text-center leading-relaxed pt-0.5">
+                    On mobile, tap <strong class="text-red-400">Send Receipt Image</strong> to attach the receipt directly to WhatsApp. On desktop, the receipt downloads automatically so you can drop it straight into the WhatsApp chat.
+                </p>
+            </div>
+        </div>
     </div>
 
     <!-- ==================== SHOWCASE LIGHTBOX REVIEW MODAL ==================== -->
@@ -185,7 +290,7 @@
                 <!-- TAB 2: LOGO & SHOWCASE PHOTOS/VIDEOS -->
                 <div id="admin-panel-branding" class="hidden space-y-5">
                     <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 space-y-3">
-                        <h4 class="text-sm font-bold text-white uppercase tracking-wider">Update GADELA Brand Logo</h4>
+                        <h4 class="text-sm font-bold text-white uppercase tracking-wider">Update GADELA Brand Logo (Used on Header & Receipts)</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] text-zinc-400 uppercase mb-1">Logo Image URL</label>
@@ -201,7 +306,7 @@
                                 Save Logo
                             </button>
                             <button onclick="clearBrandLogo()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold text-xs px-4 py-2.5 rounded-xl cursor-pointer">
-                                Reset to Empty
+                                Reset to Default Red & Black Logo
                             </button>
                         </div>
                     </div>
@@ -275,12 +380,8 @@
             
             <!-- Left: Gadela Logo Box -->
             <div class="lg:col-span-3 flex items-center justify-center">
-                <div id="logo-slot" class="w-full h-28 sm:h-32 border-2 border-dashed border-zinc-700 hover:border-yellow-500/60 rounded-xl flex flex-col items-center justify-center text-center p-3 transition-colors relative overflow-hidden group bg-zinc-950/60">
-                    <div id="logo-placeholder" class="flex flex-col items-center justify-center pointer-events-none">
-                        <span class="text-xs uppercase tracking-widest text-zinc-500 font-semibold">Gadela Logo</span>
-                        <span class="text-[11px] text-zinc-600 mt-1">(Empty — Ready for Upload)</span>
-                    </div>
-                    <img id="logo-preview" src="" alt="GADELA Logo" class="hidden max-h-full max-w-full object-contain">
+                <div id="logo-slot" class="w-full h-28 sm:h-32 border border-red-900/50 rounded-xl flex flex-col items-center justify-center text-center p-2 transition-colors relative overflow-hidden group bg-black">
+                    <img id="logo-preview" src="" alt="GADELA Logo" class="max-h-full max-w-full object-contain">
                 </div>
             </div>
 
@@ -295,10 +396,15 @@
             </div>
 
             <!-- Right: Brand Quote -->
-            <div class="lg:col-span-4 flex items-center justify-center lg:justify-end text-center lg:text-right px-2">
+            <div class="lg:col-span-4 flex flex-col items-center lg:items-end justify-center text-center lg:text-right px-2 gap-2.5">
                 <p class="text-sm sm:text-base text-zinc-300 font-medium leading-relaxed italic">
                     “We hunt money every day. That is why you need <span class="text-white font-bold not-italic">GADELA</span> in your life.”
                 </p>
+                <div class="inline-flex items-center gap-2 bg-zinc-950/90 border border-zinc-800 px-3 py-1.5 rounded-full text-xs text-zinc-400">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Store Visitors:</span>
+                    <strong id="visitor-count-header" class="text-white font-bold tracking-wide">0</strong>
+                </div>
             </div>
         </header>
 
@@ -382,7 +488,7 @@
                                 <span class="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
                                     Available <span id="slot-category-name" class="text-white">T-Shirt</span> Designs
                                 </span>
-                                <span id="design-slot-helper" class="text-[11px] text-zinc-500">Tap multiple designs to select more than one</span>
+                                <span id="design-slot-helper" class="text-[11px] text-zinc-500">Tap any design to view & add to order</span>
                             </div>
                             
                             <div id="design-slots-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
@@ -420,7 +526,7 @@
                                href="https://api.whatsapp.com/send?phone=2347080713892&text=Hello%20GADELA%20Money%20Hunter%2C%20I%20would%20like%20to%20make%20an%20inquiry." 
                                target="_blank" 
                                rel="noopener noreferrer"
-                               onclick="handleDirectWhatsAppClick(event, '2347080713892')"
+                               onclick="handleDirectInquiryClick(event, '2347080713892')"
                                class="inline-flex items-center gap-2.5 bg-emerald-600/15 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-semibold text-sm px-4 py-3 rounded-xl transition-all">
                                 <i class="fa-brands fa-whatsapp text-base"></i>
                                 <span>07080713892</span>
@@ -432,7 +538,7 @@
                                href="https://api.whatsapp.com/send?phone=2349167187337&text=Hello%20GADELA%20Money%20Hunter%2C%20I%20would%20like%20to%20make%20an%20inquiry." 
                                target="_blank" 
                                rel="noopener noreferrer"
-                               onclick="handleDirectWhatsAppClick(event, '2349167187337')"
+                               onclick="handleDirectInquiryClick(event, '2349167187337')"
                                class="inline-flex items-center gap-2.5 bg-emerald-600/15 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-semibold text-sm px-4 py-3 rounded-xl transition-all">
                                 <i class="fa-brands fa-whatsapp text-base"></i>
                                 <span>09167187337</span>
@@ -462,110 +568,94 @@
             <!-- RIGHT COLUMN: Payment Mode Form & Brand Story -->
             <div class="lg:col-span-5 flex flex-col gap-6">
                 
-                <!-- 1. PAYMENT MODE / CUSTOMER ORDER SECTION -->
+                <!-- 1. PAYMENT MODE / CUSTOMER ORDER RECEIPT SECTION -->
                 <section class="border border-zinc-800 bg-brand-card rounded-2xl p-5 sm:p-6 shadow-lg">
                     <div class="border-b border-zinc-800 pb-3 mb-5">
                         <h2 class="text-xl font-bold tracking-wide text-white uppercase flex items-center gap-2">
-                            <i class="fa-solid fa-bag-shopping text-yellow-400"></i>
+                            <i class="fa-solid fa-receipt text-red-500"></i>
                             Payment Mode
                         </h2>
-                        <p class="text-xs text-zinc-400 mt-1">Fill in your delivery details below to complete your multi-item order via WhatsApp.</p>
+                        <p class="text-xs text-zinc-400 mt-1">Fill in your delivery details below to generate your black & red GADELA Order Receipt image for WhatsApp DM.</p>
                     </div>
 
-                    <form id="order-form" onsubmit="submitOrderToWhatsApp(event)" class="space-y-4">
+                    <form id="order-form" onsubmit="submitOrderReceipt(event)" class="space-y-4">
                         <!-- Selected Items Summary Box -->
                         <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 space-y-1.5">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] uppercase tracking-wider text-zinc-500">Selected Items</span>
-                                <span id="form-total-qty-badge" class="text-[11px] font-bold text-yellow-400">1 Piece</span>
+                                <span id="form-total-qty-badge" class="text-[11px] font-bold text-zinc-400">0 Pieces</span>
                             </div>
-                            <div id="form-item-display" class="text-xs font-semibold text-zinc-200 leading-relaxed">
-                                T-Shirt — Black (Size: L) ×1
+                            <div id="form-item-display" class="text-xs font-medium text-zinc-500 leading-relaxed">
+                                No items selected yet. Choose your clothing from the collection first.
                             </div>
                         </div>
 
                         <!-- Customer Name -->
                         <div>
                             <label for="customer-name" class="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-1.5">
-                                Customer Name <span class="text-yellow-400">*</span>
+                                Customer Name <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="customer-name" required placeholder="Enter your full name"
-                                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-yellow-400 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors">
+                                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-red-500 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors">
                         </div>
 
                         <!-- Address for Delivery -->
                         <div>
                             <label for="delivery-address" class="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-1.5">
-                                Address for Delivery <span class="text-yellow-400">*</span>
+                                Address for Delivery <span class="text-red-500">*</span>
                             </label>
                             <textarea id="delivery-address" rows="2" required placeholder="Enter street, city, and state"
-                                      class="w-full bg-zinc-950 border border-zinc-800 focus:border-yellow-400 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors resize-none"></textarea>
+                                      class="w-full bg-zinc-950 border border-zinc-800 focus:border-red-500 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors resize-none"></textarea>
                         </div>
 
                         <!-- Phone Number -->
                         <div>
                             <label for="customer-phone" class="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-1.5">
-                                Phone Number <span class="text-yellow-400">*</span>
+                                Phone Number <span class="text-red-500">*</span>
                             </label>
                             <input type="tel" id="customer-phone" required placeholder="e.g. 08012345678"
-                                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-yellow-400 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors">
+                                   class="w-full bg-zinc-950 border border-zinc-800 focus:border-red-500 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors">
                         </div>
 
                         <!-- Delivery Fee Notice -->
-                        <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-3.5 flex items-start gap-3">
-                            <i class="fa-solid fa-truck-fast text-yellow-400 mt-0.5"></i>
-                            <p class="text-xs sm:text-sm text-yellow-200/90 font-medium">
+                        <div class="bg-red-950/30 border border-red-600/40 rounded-xl p-3.5 flex items-start gap-3">
+                            <i class="fa-solid fa-truck-fast text-red-400 mt-0.5"></i>
+                            <p class="text-xs sm:text-sm text-red-200 font-medium">
                                 Delivery fees depend on the location.
                             </p>
                         </div>
 
-                        <!-- Submit to WhatsApp Buttons -->
+                        <!-- Generate Receipt Image & Send to WhatsApp DM Buttons -->
                         <div class="pt-1 space-y-2.5">
-                            <a id="wa-link-primary"
-                               href="https://api.whatsapp.com/send?phone=2347080713892&text=Hello%20GADELA%20Money%20Hunter%2C%20I%20would%20like%20to%20place%20an%20order."
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               data-number="2347080713892"
-                               onclick="handleDirectWhatsAppClick(event, '2347080713892')"
-                               class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm py-3.5 px-5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer text-center">
-                                <i class="fa-brands fa-whatsapp text-lg"></i>
-                                <span>Send Order via WhatsApp (07080713892)</span>
-                            </a>
-                            <a id="wa-link-backup"
-                               href="https://api.whatsapp.com/send?phone=2349167187337&text=Hello%20GADELA%20Money%20Hunter%2C%20I%20would%20like%20to%20place%20an%20order."
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               data-number="2349167187337"
-                               onclick="handleDirectWhatsAppClick(event, '2349167187337')"
-                               class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 font-semibold text-xs py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
-                                <i class="fa-brands fa-whatsapp text-emerald-400 text-base"></i>
-                                <span>Or Send via Backup Line (09167187337)</span>
-                            </a>
+                            <button type="button"
+                                    onclick="handleOrderReceiptAction('2347080713892')"
+                                    class="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-sm py-3.5 px-5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-950/50 cursor-pointer text-center">
+                                <i class="fa-solid fa-receipt text-base"></i>
+                                <span>Send Order Receipt Image (07080713892)</span>
+                            </button>
+                            <button type="button"
+                                    onclick="handleOrderReceiptAction('2349167187337')"
+                                    class="w-full bg-zinc-950 hover:bg-zinc-900 border border-red-700/60 text-zinc-200 font-semibold text-xs py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
+                                <i class="fa-brands fa-whatsapp text-red-400 text-base"></i>
+                                <span>Or Send Receipt via Backup Line (09167187337)</span>
+                            </button>
                         </div>
 
-                        <!-- Live Order Summary & Fallback Box -->
-                        <div id="order-preview-box" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 mt-3 space-y-2">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-                                    Customer Order Details
-                                </span>
-                                <button type="button" onclick="copyOrderDetails()" class="text-[11px] font-semibold text-yellow-400 hover:text-yellow-300 underline cursor-pointer">
-                                    Copy Order
+                        <!-- Live Mini Black & Red Receipt Card Preview -->
+                        <div class="bg-black border border-red-700/60 rounded-xl p-3.5 mt-3 space-y-2.5 shadow-inner">
+                            <div class="flex items-center justify-between gap-2 border-b border-red-900/50 pb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-red-400">
+                                        Official Image Receipt Ready
+                                    </span>
+                                </div>
+                                <button type="button" onclick="handleOrderReceiptAction(state.targetWhatsApp)" class="text-[11px] font-bold text-white bg-red-600/80 hover:bg-red-600 px-2.5 py-1 rounded-md cursor-pointer">
+                                    Preview / Share Image
                                 </button>
                             </div>
-                            <pre id="order-summary-preview" class="text-[11px] text-zinc-300 whitespace-pre-wrap font-sans leading-relaxed bg-zinc-900/70 p-2.5 rounded-lg border border-zinc-800/80"></pre>
-                            <div id="wa-direct-launch-row" class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                                <a id="wa-app-scheme-link"
-                                   href="whatsapp://send?phone=2347080713892&text=Hello%20GADELA%20Money%20Hunter%2C%20I%20would%20like%20to%20place%20an%20order."
-                                   class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 underline">
-                                    Open WhatsApp App Directly
-                                </a>
-                                <span id="wa-selected-recipient" class="text-[11px] text-zinc-400">
-                                    Recipient: +2347080713892
-                                </span>
-                            </div>
-                            <p id="wa-fallback-status" class="text-[11px] text-zinc-400 leading-snug">
-                                If external links are blocked inside this preview window, open the page in a normal browser tab or copy the order details above to send in WhatsApp.
+                            <p class="text-[11px] text-zinc-400 leading-relaxed">
+                                Orders are generated as a <strong class="text-red-400">Black & Red GADELA Receipt Image</strong> with the official red-and-black GADELA logo stamped on top—no plain text messages.
                             </p>
                         </div>
                     </form>
@@ -596,14 +686,20 @@
     <footer class="border-t border-zinc-900 py-5 px-4 text-center text-xs text-zinc-500 mt-6">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <p>&copy; <span id="year"></span> GADELA — Money Hunter. All Rights Reserved.</p>
-            <button onclick="openAdminModal()" class="text-zinc-600 hover:text-yellow-400 transition-colors inline-flex items-center gap-1.5 text-[11px] cursor-pointer">
-                <i class="fa-solid fa-sliders"></i>
-                <span>Owner Studio</span>
-            </button>
+            <div class="flex items-center gap-4">
+                <span class="inline-flex items-center gap-1.5 text-[11px] text-zinc-400">
+                    <i class="fa-solid fa-eye text-yellow-400"></i>
+                    <span>Visitors: <strong id="visitor-count-footer" class="text-zinc-200">0</strong></span>
+                </span>
+                <button onclick="openAdminModal()" class="text-zinc-600 hover:text-yellow-400 transition-colors inline-flex items-center gap-1.5 text-[11px] cursor-pointer">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Owner Studio</span>
+                </button>
+            </div>
         </div>
     </footer>
 
-    <!-- Interactive Application & Multi-Select Store Logic -->
+    <!-- Interactive Application, Multi-Select Store & Black/Red Receipt Image Engine -->
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -611,8 +707,36 @@
         const PIN_STORAGE_KEY = 'gadela_owner_pin_v1';
         const REMOTE_CATALOG_FILE = 'gadela-catalog.json';
 
+        // Default Red & Black GADELA Artwork Emblem (Embedded SVG Data URI matching the red & black GADELA mask/tongue/eyes drawing)
+        const DEFAULT_GADELA_RED_BLACK_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 620" width="600" height="620">
+  <rect width="600" height="620" fill="#050505"/>
+  <!-- Sharp Left Eye (Black & Crimson Red) -->
+  <path d="M35 28 L255 125 L230 198 L88 152 Z" fill="#0d0d0d" stroke="#2a2a2a" stroke-width="5"/>
+  <path d="M98 110 C138 96, 198 112, 224 148 C196 178, 134 172, 98 110 Z" fill="#180505" stroke="#b91c1c" stroke-width="6"/>
+  <ellipse cx="164" cy="138" rx="18" ry="24" fill="#991b1b"/>
+  <!-- Sharp Right Eye (Black & Crimson Red) -->
+  <path d="M565 28 L345 125 L370 198 L512 152 Z" fill="#0d0d0d" stroke="#2a2a2a" stroke-width="5"/>
+  <path d="M502 110 C462 96, 402 112, 376 148 C404 178, 466 172, 502 110 Z" fill="#180505" stroke="#b91c1c" stroke-width="6"/>
+  <ellipse cx="436" cy="138" rx="18" ry="24" fill="#991b1b"/>
+  <!-- Forehead Cross Sigil -->
+  <line x1="300" y1="120" x2="300" y2="225" stroke="#b91c1c" stroke-width="6" stroke-linecap="round"/>
+  <line x1="274" y1="152" x2="326" y2="188" stroke="#b91c1c" stroke-width="5" stroke-linecap="round"/>
+  <line x1="322" y1="145" x2="278" y2="192" stroke="#b91c1c" stroke-width="5" stroke-linecap="round"/>
+  <!-- Stylized GADELA Lettering -->
+  <text x="300" y="298" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="900" font-size="82" letter-spacing="8" fill="#120404" stroke="#b91c1c" stroke-width="4">GADELÂ</text>
+  <!-- Wide Grinning Mouth & Fangs -->
+  <path d="M132 332 C195 392, 405 392, 468 332 C488 438, 415 512, 300 512 C185 512, 112 438, 132 332 Z" fill="#090909" stroke="#b91c1c" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Upper & Lower Teeth -->
+  <path d="M152 355 L176 402 L202 368 L230 415 L264 378 L300 418 L336 378 L370 415 L398 368 L424 402 L448 355" fill="none" stroke="#991b1b" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M162 438 L192 405 L224 452 L262 415 L300 456 L338 415 L376 452 L408 405 L438 438" fill="none" stroke="#991b1b" stroke-width="5" stroke-linejoin="round"/>
+  <!-- Crimson Textured Tongue -->
+  <path d="M236 442 C222 515, 240 592, 300 595 C360 592, 378 515, 364 442 C338 426, 314 436, 300 454 C286 436, 262 426, 236 442 Z" fill="#991b1b" stroke="#dc2626" stroke-width="6"/>
+  <path d="M300 454 C298 505, 298 552, 300 586" fill="none" stroke="#450a0a" stroke-width="6" stroke-linecap="round"/>
+</svg>`);
+
         const defaultStoreData = {
-            logoUrl: '',
+            logoUrl: DEFAULT_GADELA_RED_BLACK_LOGO,
             collections: {
                 'T-Shirt': [],
                 'Hoodie': [],
@@ -668,30 +792,107 @@
             color: 'Black',
             size: 'L',
             targetWhatsApp: '2347080713892',
-            selectedItems: [
-                {
-                    key: 'T-Shirt||Black|L',
-                    category: 'T-Shirt',
-                    designTitle: '',
-                    price: '',
-                    color: 'Black',
-                    size: 'L',
-                    qty: 1
-                }
-            ]
+            latestReceiptDataUrl: '',
+            latestReceiptBlob: null,
+            latestReceiptFilename: 'GADELA-Order-Receipt.png',
+            selectedItems: []
         };
 
         function buildItemKey(category, designTitle, color, size) {
             return `${category}|${designTitle || ''}|${color}|${size}`;
         }
 
-        function toggleDesignSelection(item) {
-            const key = buildItemKey(state.category, item.title, state.color, state.size);
-            const existingIndex = state.selectedItems.findIndex(entry => entry.key === key);
+        let activeProductViewItem = null;
 
-            if (existingIndex > -1) {
-                state.selectedItems.splice(existingIndex, 1);
-                showToast(`Removed ${item.title} (${state.color}, ${state.size})`);
+        function openProductViewModal(item) {
+            activeProductViewItem = item;
+            const modal = document.getElementById('product-view-modal');
+            const imgEl = document.getElementById('pv-image');
+            const titleEl = document.getElementById('pv-title');
+            const priceEl = document.getElementById('pv-price');
+            const catBadge = document.getElementById('pv-category-badge');
+
+            catBadge.textContent = state.category;
+            imgEl.src = item.image;
+            imgEl.onerror = () => {
+                imgEl.src = 'https://placehold.co/400x500/18181b/eab308?text=GADELA';
+            };
+            titleEl.textContent = item.title;
+
+            if (item.price) {
+                priceEl.textContent = item.price;
+                priceEl.classList.remove('hidden');
+            } else {
+                priceEl.classList.add('hidden');
+            }
+
+            renderProductViewOptions();
+            modal.classList.remove('hidden');
+        }
+
+        function closeProductViewModal() {
+            document.getElementById('product-view-modal').classList.add('hidden');
+            activeProductViewItem = null;
+        }
+
+        function renderProductViewOptions() {
+            const colorsContainer = document.getElementById('pv-colors');
+            const sizesContainer = document.getElementById('pv-sizes');
+            const catConfig = catalogConfig[state.category];
+
+            colorsContainer.innerHTML = '';
+            catConfig.colors.forEach(colorObj => {
+                const isSelected = state.color === colorObj.name;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => {
+                    state.color = colorObj.name;
+                    renderColors();
+                    renderProductViewOptions();
+                    updateSummaryDisplay();
+                };
+                btn.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                    isSelected
+                        ? 'bg-zinc-800 border-yellow-400 text-white'
+                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-600'
+                }`;
+                btn.innerHTML = `
+                    <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${colorObj.hex}; border: 1px solid ${colorObj.border};"></span>
+                    <span>${colorObj.name}</span>
+                `;
+                colorsContainer.appendChild(btn);
+            });
+
+            sizesContainer.innerHTML = '';
+            catConfig.sizes.forEach(sizeVal => {
+                const isSelected = state.size === sizeVal;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => {
+                    state.size = sizeVal;
+                    renderSizes();
+                    renderProductViewOptions();
+                    updateSummaryDisplay();
+                };
+                btn.className = `px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                    isSelected
+                        ? 'bg-yellow-400 text-black border-yellow-400'
+                        : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:border-zinc-600'
+                }`;
+                btn.textContent = sizeVal;
+                sizesContainer.appendChild(btn);
+            });
+        }
+
+        function confirmAddFromProductView() {
+            if (!activeProductViewItem) return;
+            const item = activeProductViewItem;
+            const key = buildItemKey(state.category, item.title, state.color, state.size);
+            const existing = state.selectedItems.find(entry => entry.key === key);
+
+            if (existing) {
+                existing.qty += 1;
+                showToast(`Increased ${item.title} (${state.color}, ${state.size}) to ×${existing.qty}`);
             } else {
                 state.selectedItems.push({
                     key,
@@ -702,12 +903,13 @@
                     size: state.size,
                     qty: 1
                 });
-                showToast(`Added ${item.title} (${state.color}, ${state.size})`);
+                showToast(`Added ${item.title} (${state.color}, ${state.size}) to order`);
             }
 
             renderDesignSlots();
             renderSelectedItemsBag();
             updateSummaryDisplay();
+            closeProductViewModal();
         }
 
         function addCurrentConfigurationToBag() {
@@ -818,7 +1020,7 @@
                 if (savedLocal) {
                     const parsed = JSON.parse(savedLocal);
                     storeData = {
-                        logoUrl: parsed.logoUrl || '',
+                        logoUrl: parsed.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO,
                         collections: {
                             'T-Shirt': parsed.collections?.['T-Shirt'] || [],
                             'Hoodie': parsed.collections?.['Hoodie'] || [],
@@ -838,7 +1040,7 @@
                     const remoteData = await res.json();
                     if (remoteData && remoteData.collections) {
                         storeData = {
-                            logoUrl: remoteData.logoUrl || storeData.logoUrl,
+                            logoUrl: remoteData.logoUrl || storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO,
                             collections: {
                                 'T-Shirt': remoteData.collections['T-Shirt'] || [],
                                 'Hoodie': remoteData.collections['Hoodie'] || [],
@@ -873,22 +1075,8 @@
 
         function renderLogo() {
             const preview = document.getElementById('logo-preview');
-            const placeholder = document.getElementById('logo-placeholder');
-            const slot = document.getElementById('logo-slot');
-
-            if (storeData.logoUrl) {
-                preview.src = storeData.logoUrl;
-                preview.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-                slot.classList.remove('border-dashed');
-                slot.classList.add('border-solid');
-            } else {
-                preview.src = '';
-                preview.classList.add('hidden');
-                placeholder.classList.remove('hidden');
-                slot.classList.add('border-dashed');
-                slot.classList.remove('border-solid');
-            }
+            if (!preview) return;
+            preview.src = storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO;
         }
 
         function renderDesignSlots() {
@@ -909,20 +1097,18 @@
             }
 
             slotHelper.textContent = items.length > 0
-                ? 'Tap multiple designs to add them to your selection'
+                ? 'Tap any design to view details before adding'
                 : 'Empty Slots — Ready for Images';
 
             items.forEach((item) => {
-                const activeKey = buildItemKey(state.category, item.title, state.color, state.size);
                 const matchingEntries = state.selectedItems.filter(
                     entry => entry.category === state.category && entry.designTitle === item.title
                 );
-                const isSelectedInCurrentVariant = state.selectedItems.some(entry => entry.key === activeKey);
                 const totalSelectedForDesign = matchingEntries.reduce((sum, entry) => sum + entry.qty, 0);
 
                 const card = document.createElement('button');
                 card.type = 'button';
-                card.onclick = () => toggleDesignSelection(item);
+                card.onclick = () => openProductViewModal(item);
 
                 card.className = `aspect-[4/5] rounded-xl border-2 overflow-hidden relative group flex flex-col justify-end text-left transition-all cursor-pointer ${
                     totalSelectedForDesign > 0
@@ -937,7 +1123,7 @@
                     <div class="relative z-10 p-2.5">
                         <p class="text-xs font-bold text-white leading-tight truncate">${item.title}</p>
                         ${item.price ? `<p class="text-[11px] font-semibold text-yellow-400 mt-0.5">${item.price}</p>` : ''}
-                        <p class="text-[10px] text-zinc-300 mt-0.5">${isSelectedInCurrentVariant ? 'Tap to unselect' : 'Tap to add'}</p>
+                        <p class="text-[10px] text-zinc-300 mt-0.5 flex items-center gap-1"><i class="fa-solid fa-eye text-[9px] text-yellow-400"></i> Tap to view</p>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -1149,17 +1335,7 @@
         }
 
         function getEffectiveOrderItems() {
-            if (state.selectedItems.length > 0) {
-                return state.selectedItems;
-            }
-            return [{
-                category: state.category,
-                designTitle: '',
-                price: '',
-                color: state.color,
-                size: state.size,
-                qty: 1
-            }];
+            return state.selectedItems;
         }
 
         function updateSummaryDisplay() {
@@ -1175,83 +1351,508 @@
             const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
 
             if (totalQtyBadge) {
-                totalQtyBadge.textContent = `${totalQty} Piece${totalQty > 1 ? 's' : ''}`;
+                totalQtyBadge.textContent = `${totalQty} Piece${totalQty === 1 ? '' : 's'}`;
+                totalQtyBadge.className = totalQty > 0
+                    ? 'text-[11px] font-bold text-yellow-400'
+                    : 'text-[11px] font-bold text-zinc-400';
             }
 
             if (formDisplay) {
-                formDisplay.innerHTML = items.map(item => {
-                    const name = item.designTitle ? `${item.category} (${item.designTitle})` : item.category;
-                    const pricePart = item.price ? ` • ${item.price}` : '';
-                    return `<div>• ${name} — ${item.color} (Size: ${item.size}${pricePart}) <span class="text-yellow-400 font-bold">×${item.qty}</span></div>`;
-                }).join('');
+                if (items.length === 0) {
+                    formDisplay.innerHTML = `<span class="text-zinc-500 font-normal">No items selected yet. Choose your clothing from the collection first.</span>`;
+                } else {
+                    formDisplay.innerHTML = items.map(item => {
+                        const name = item.designTitle ? `${item.category} (${item.designTitle})` : item.category;
+                        const pricePart = item.price ? ` • ${item.price}` : '';
+                        return `<div>• ${name} — ${item.color} (Size: ${item.size}${pricePart}) <span class="text-yellow-400 font-bold">×${item.qty}</span></div>`;
+                    }).join('');
+                }
             }
-
-            syncDirectWhatsAppLinks();
         }
 
-        function buildWhatsAppMessage() {
-            const name = document.getElementById('customer-name').value.trim();
-            const address = document.getElementById('delivery-address').value.trim();
-            const phone = document.getElementById('customer-phone').value.trim();
+        // ==================== BLACK & RED OFFICIAL RECEIPT IMAGE GENERATOR ====================
+        function loadImageForCanvas(src) {
+            return new Promise((resolve) => {
+                if (!src) {
+                    resolve(null);
+                    return;
+                }
+                const img = new Image();
+                if (!src.startsWith('data:')) {
+                    img.crossOrigin = 'anonymous';
+                }
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = src;
+            });
+        }
+
+        function wrapCanvasLines(ctx, text, maxWidth) {
+            const words = String(text || '').split(/\s+/);
+            const lines = [];
+            let currentLine = '';
+
+            words.forEach(word => {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                if (ctx.measureText(testLine).width <= maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = word;
+                }
+            });
+            if (currentLine) lines.push(currentLine);
+            return lines.length ? lines : ['—'];
+        }
+
+        function drawRoundedRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        // Generate a crisp Red & Black Scannable QR Code Image for the Order Receipt
+        function generateOrderQrCanvas(qrPayloadText) {
+            return new Promise((resolve) => {
+                if (typeof QRCode === 'undefined') {
+                    resolve(null);
+                    return;
+                }
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'fixed';
+                tempDiv.style.left = '-9999px';
+                document.body.appendChild(tempDiv);
+
+                try {
+                    new QRCode(tempDiv, {
+                        text: qrPayloadText,
+                        width: 240,
+                        height: 240,
+                        colorDark: '#ef4444',
+                        colorLight: '#050505',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+
+                    setTimeout(() => {
+                        const qrCanvas = tempDiv.querySelector('canvas');
+                        const qrImg = tempDiv.querySelector('img');
+                        if (qrCanvas) {
+                            document.body.removeChild(tempDiv);
+                            resolve(qrCanvas);
+                        } else if (qrImg && qrImg.src) {
+                            const img = new Image();
+                            img.onload = () => {
+                                document.body.removeChild(tempDiv);
+                                resolve(img);
+                            };
+                            img.onerror = () => {
+                                document.body.removeChild(tempDiv);
+                                resolve(null);
+                            };
+                            img.src = qrImg.src;
+                        } else {
+                            document.body.removeChild(tempDiv);
+                            resolve(null);
+                        }
+                    }, 60);
+                } catch (e) {
+                    if (tempDiv.parentNode) document.body.removeChild(tempDiv);
+                    resolve(null);
+                }
+            });
+        }
+
+        async function generateBlackRedReceiptImage() {
+            const name = document.getElementById('customer-name').value.trim() || 'Valued Customer';
+            const address = document.getElementById('delivery-address').value.trim() || 'Delivery Address Pending';
+            const phone = document.getElementById('customer-phone').value.trim() || 'Not Provided';
             const items = getEffectiveOrderItems();
             const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
 
-            const itemsLines = items.map((item, index) => {
-                const namePart = item.designTitle ? `${item.category} (${item.designTitle})` : item.category;
-                const pricePart = item.price ? ` [${item.price}]` : '';
-                return `${index + 1}. ${namePart}${pricePart} — Color: ${item.color}, Size: ${item.size} ×${item.qty}`;
-            }).join('\n');
+            const orderNumber = 'GDL-' + Math.floor(100000 + Math.random() * 900000);
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' +
+                            now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-            if (!name && !address && !phone) {
-                return `Hello GADELA Money Hunter! I want to order (${totalQty} piece${totalQty > 1 ? 's' : ''}):\n${itemsLines}`;
+            // Build compact scan payload so any phone camera scanner reads the full order instantly
+            const compactItems = items.map(it => `${it.category}${it.designTitle ? '(' + it.designTitle + ')' : ''}[${it.color}/${it.size}]x${it.qty}`).join('; ');
+            const qrPayload = `GADELA ORDER ${orderNumber}\nName: ${name}\nPhone: ${phone}\nAddr: ${address}\nItems: ${compactItems}`;
+
+            // Load the Red & Black GADELA Logo and Generate Scannable QR Code in parallel
+            let [logoImg, qrSource] = await Promise.all([
+                loadImageForCanvas(storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO),
+                generateOrderQrCanvas(qrPayload)
+            ]);
+            if (!logoImg) {
+                logoImg = await loadImageForCanvas(DEFAULT_GADELA_RED_BLACK_LOGO);
             }
 
-            return (
-`*NEW ORDER — GADELA (MONEY HUNTER)*
-----------------------------------
-*Items (${totalQty} piece${totalQty > 1 ? 's' : ''}):*
-${itemsLines}
-----------------------------------
-*Customer Name:* ${name || 'Not provided yet'}
-*Delivery Address:* ${address || 'Not provided yet'}
-*Phone Number:* ${phone || 'Not provided yet'}
-----------------------------------
-_(Note: Delivery fee depends on location)_`
-            );
+            // Pre-calculate dynamic canvas height based on number of items and wrapped address lines
+            const width = 900;
+            const measureCanvas = document.createElement('canvas');
+            const mCtx = measureCanvas.getContext('2d');
+            mCtx.font = '600 24px Inter, sans-serif';
+            const addressLines = wrapCanvasLines(mCtx, address, 690);
+
+            const itemsBlockHeight = Math.max(120, items.length * 88 + 30);
+            const customerBlockHeight = 205 + (addressLines.length * 32);
+            const scanBlockHeight = 220;
+            const totalHeight = 520 + itemsBlockHeight + customerBlockHeight + scanBlockHeight + 165;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = totalHeight;
+            const ctx = canvas.getContext('2d');
+
+            // 1. Deep Obsidian Black Background with Subtle Crimson Radial Glow
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, width, totalHeight);
+
+            const topGlow = ctx.createRadialGradient(width / 2, 170, 20, width / 2, 170, 420);
+            topGlow.addColorStop(0, 'rgba(220, 38, 38, 0.28)');
+            topGlow.addColorStop(1, 'rgba(5, 5, 5, 0)');
+            ctx.fillStyle = topGlow;
+            ctx.fillRect(0, 0, width, 540);
+
+            // Outer Double Crimson Frame
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 6;
+            drawRoundedRect(ctx, 24, 24, width - 48, totalHeight - 48, 28);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.35)';
+            ctx.lineWidth = 2;
+            drawRoundedRect(ctx, 38, 38, width - 76, totalHeight - 76, 20);
+            ctx.stroke();
+
+            // Top Crimson Header Banner Bar
+            ctx.fillStyle = '#991b1b';
+            ctx.fillRect(38, 38, width - 76, 56);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 20px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('OFFICIAL ORDER RECEIPT  •  GADELA STREETWEAR', width / 2, 73);
+
+            // 2. Red & Black GADELA Logo Artwork Stamp
+            const logoBoxSize = 210;
+            const logoX = (width - logoBoxSize) / 2;
+            const logoY = 115;
+
+            ctx.fillStyle = '#050505';
+            drawRoundedRect(ctx, logoX - 10, logoY - 10, logoBoxSize + 20, logoBoxSize + 20, 22);
+            ctx.fill();
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            if (logoImg) {
+                const scale = Math.min(logoBoxSize / logoImg.width, logoBoxSize / logoImg.height);
+                const drawW = logoImg.width * scale;
+                const drawH = logoImg.height * scale;
+                ctx.drawImage(
+                    logoImg,
+                    logoX + (logoBoxSize - drawW) / 2,
+                    logoY + (logoBoxSize - drawH) / 2,
+                    drawW,
+                    drawH
+                );
+            }
+
+            // Brand Title & Subtitle under Logo
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 46px Syne, Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('GADELA', width / 2, 382);
+
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '800 18px Inter, sans-serif';
+            ctx.fillText('MONEY HUNTER  •  OFFICIAL ORDER VOUCHER', width / 2, 412);
+
+            // Order Ref & Timestamp Pill
+            ctx.fillStyle = '#140505';
+            drawRoundedRect(ctx, 70, 434, width - 140, 52, 12);
+            ctx.fill();
+            ctx.strokeStyle = '#7f1d1d';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#fca5a5';
+            ctx.font = '700 18px Inter, sans-serif';
+            ctx.fillText(`ORDER ID: ${orderNumber}`, 92, 466);
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#e4e4e7';
+            ctx.font = '600 17px Inter, sans-serif';
+            ctx.fillText(dateStr, width - 92, 466);
+
+            // 3. Ordered Items Section (Black & Red Card)
+            let cursorY = 512;
+            ctx.fillStyle = '#0d0606';
+            drawRoundedRect(ctx, 70, cursorY, width - 140, itemsBlockHeight, 16);
+            ctx.fill();
+            ctx.strokeStyle = '#b91c1c';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '800 18px Inter, sans-serif';
+            ctx.fillText(`SELECTED PIECES (${totalQty} ITEM${totalQty > 1 ? 'S' : ''})`, 94, cursorY + 36);
+
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.35)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(94, cursorY + 50);
+            ctx.lineTo(width - 94, cursorY + 50);
+            ctx.stroke();
+
+            let itemY = cursorY + 86;
+            items.forEach((item, idx) => {
+                const titleText = item.designTitle
+                    ? `${idx + 1}. ${item.category} — ${item.designTitle}`
+                    : `${idx + 1}. ${item.category}`;
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '700 23px Inter, sans-serif';
+                ctx.fillText(titleText, 94, itemY);
+
+                // Quantity Badge on Right
+                ctx.fillStyle = '#dc2626';
+                drawRoundedRect(ctx, width - 172, itemY - 24, 78, 34, 8);
+                ctx.fill();
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 20px Inter, sans-serif';
+                ctx.fillText(`×${item.qty}`, width - 133, itemY);
+
+                // Color, Size & Price Sub-line
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#fca5a5';
+                ctx.font = '600 18px Inter, sans-serif';
+                const detailLine = `Color: ${item.color}   |   Size: ${item.size}${item.price ? `   |   Price: ${item.price}` : ''}`;
+                ctx.fillText(detailLine, 118, itemY + 30);
+
+                itemY += 86;
+            });
+
+            // 4. Customer Delivery Details Section
+            cursorY += itemsBlockHeight + 24;
+            ctx.fillStyle = '#0d0606';
+            drawRoundedRect(ctx, 70, cursorY, width - 140, customerBlockHeight, 16);
+            ctx.fill();
+            ctx.strokeStyle = '#b91c1c';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '800 18px Inter, sans-serif';
+            ctx.fillText('CUSTOMER DELIVERY DETAILS', 94, cursorY + 36);
+
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.35)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(94, cursorY + 50);
+            ctx.lineTo(width - 94, cursorY + 50);
+            ctx.stroke();
+
+            // Customer Name
+            ctx.fillStyle = '#a1a1aa';
+            ctx.font = '700 15px Inter, sans-serif';
+            ctx.fillText('CUSTOMER NAME:', 94, cursorY + 84);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '700 24px Inter, sans-serif';
+            ctx.fillText(name, 94, cursorY + 114);
+
+            // Phone Number
+            ctx.fillStyle = '#a1a1aa';
+            ctx.font = '700 15px Inter, sans-serif';
+            ctx.fillText('PHONE NUMBER:', 94, cursorY + 152);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '700 24px Inter, sans-serif';
+            ctx.fillText(phone, 94, cursorY + 182);
+
+            // Delivery Address
+            ctx.fillStyle = '#a1a1aa';
+            ctx.font = '700 15px Inter, sans-serif';
+            ctx.fillText('DELIVERY ADDRESS:', 94, cursorY + 218);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '600 22px Inter, sans-serif';
+            addressLines.forEach((line, i) => {
+                ctx.fillText(line, 94, cursorY + 248 + (i * 32));
+            });
+
+            // 5. Scannable QR Verification Block (Black & Red)
+            const scanY = cursorY + customerBlockHeight + 24;
+            ctx.fillStyle = '#0d0606';
+            drawRoundedRect(ctx, 70, scanY, width - 140, scanBlockHeight, 16);
+            ctx.fill();
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // QR Box on Left
+            const qrBoxSize = 172;
+            const qrX = 96;
+            const qrY = scanY + 24;
+            ctx.fillStyle = '#050505';
+            drawRoundedRect(ctx, qrX, qrY, qrBoxSize, qrBoxSize, 12);
+            ctx.fill();
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            if (qrSource) {
+                ctx.drawImage(qrSource, qrX + 10, qrY + 10, qrBoxSize - 20, qrBoxSize - 20);
+            }
+
+            // Scan Instructions & Verification Details on Right
+            const scanTextX = qrX + qrBoxSize + 28;
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '800 20px Inter, sans-serif';
+            ctx.fillText('SCAN TO VERIFY ORDER', scanTextX, scanY + 56);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '700 18px Inter, sans-serif';
+            ctx.fillText(`REF: ${orderNumber}  •  ${totalQty} PIECE${totalQty > 1 ? 'S' : ''}`, scanTextX, scanY + 90);
+
+            ctx.fillStyle = '#a1a1aa';
+            ctx.font = '500 16px Inter, sans-serif';
+            ctx.fillText('Scan this QR code with any phone camera', scanTextX, scanY + 124);
+            ctx.fillText('to instantly view customer & order items', scanTextX, scanY + 148);
+            ctx.fillText('for dispatch and delivery confirmation.', scanTextX, scanY + 172);
+
+            // 6. Footer Note (Delivery Fee & Official WhatsApp Lines)
+            const footerY = scanY + scanBlockHeight + 22;
+            ctx.fillStyle = '#7f1d1d';
+            drawRoundedRect(ctx, 70, footerY, width - 140, 88, 14);
+            ctx.fill();
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '700 19px Inter, sans-serif';
+            ctx.fillText('NOTE: Delivery fees depend on the delivery location.', width / 2, footerY + 36);
+
+            ctx.fillStyle = '#fecaca';
+            ctx.font = '600 16px Inter, sans-serif';
+            ctx.fillText('GADELA Official DM: +234 708 071 3892  /  +234 916 718 7337', width / 2, footerY + 66);
+
+            const dataUrl = canvas.toDataURL('image/png');
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+            state.latestReceiptDataUrl = dataUrl;
+            state.latestReceiptBlob = blob;
+            state.latestReceiptFilename = `${orderNumber}-Receipt.png`;
+
+            return { dataUrl, blob, filename: state.latestReceiptFilename };
         }
 
-        function syncDirectWhatsAppLinks() {
-            const messageText = buildWhatsAppMessage();
-            const encodedMsg = encodeURIComponent(messageText);
-            const primaryLink = document.getElementById('wa-link-primary');
-            const backupLink = document.getElementById('wa-link-backup');
-            const contactPrimary = document.getElementById('contact-wa-primary');
-            const contactBackup = document.getElementById('contact-wa-backup');
-            const appSchemeLink = document.getElementById('wa-app-scheme-link');
-            const recipientLabel = document.getElementById('wa-selected-recipient');
-            const previewEl = document.getElementById('order-summary-preview');
+        async function handleOrderReceiptAction(targetPhoneNumber) {
+            const nameInput = document.getElementById('customer-name');
+            const addressInput = document.getElementById('delivery-address');
+            const phoneInput = document.getElementById('customer-phone');
 
-            const urlPrimary = `https://api.whatsapp.com/send?phone=2347080713892&text=${encodedMsg}`;
-            const urlBackup = `https://api.whatsapp.com/send?phone=2349167187337&text=${encodedMsg}`;
+            if (state.selectedItems.length === 0) {
+                showToast('Please select at least one clothing item from the collection first.');
+                return;
+            }
 
-            if (primaryLink) primaryLink.href = urlPrimary;
-            if (backupLink) backupLink.href = urlBackup;
-            if (contactPrimary) contactPrimary.href = urlPrimary;
-            if (contactBackup) contactBackup.href = urlBackup;
-            if (appSchemeLink) {
-                appSchemeLink.href = `whatsapp://send?phone=${state.targetWhatsApp}&text=${encodedMsg}`;
+            if (!nameInput.value.trim() || !addressInput.value.trim() || !phoneInput.value.trim()) {
+                showToast('Please enter your Name, Delivery Address, and Phone Number first.');
+                if (!nameInput.value.trim()) nameInput.focus();
+                else if (!addressInput.value.trim()) addressInput.focus();
+                else phoneInput.focus();
+                return;
             }
-            if (recipientLabel) {
-                recipientLabel.textContent = `Recipient: +${state.targetWhatsApp}`;
+
+            state.targetWhatsApp = targetPhoneNumber;
+            showToast('Generating your Black & Red GADELA Receipt...');
+
+            const receipt = await generateBlackRedReceiptImage();
+
+            const previewImg = document.getElementById('receipt-preview-img');
+            const shareBtnLabel = document.getElementById('share-receipt-btn-label');
+            const directWaBtn = document.getElementById('receipt-open-wa-direct');
+
+            if (previewImg) previewImg.src = receipt.dataUrl;
+            if (shareBtnLabel) shareBtnLabel.textContent = `Send Receipt Image to WhatsApp (+${targetPhoneNumber})`;
+            if (directWaBtn) directWaBtn.href = `https://api.whatsapp.com/send?phone=${targetPhoneNumber}`;
+
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        async function shareReceiptImageToWhatsApp() {
+            if (!state.latestReceiptBlob) {
+                await generateBlackRedReceiptImage();
             }
-            if (previewEl) {
-                previewEl.textContent = messageText;
+
+            const file = new File([state.latestReceiptBlob], state.latestReceiptFilename, { type: 'image/png' });
+
+            // On mobile / browsers supporting Web Share API with files, share the receipt image directly to WhatsApp
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'GADELA Official Order Receipt'
+                    });
+                    showToast('Receipt image shared!');
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                }
+            }
+
+            // Desktop / fallback: download the receipt PNG automatically and open the WhatsApp DM chat window
+            downloadReceiptImage();
+            const waUrl = `https://api.whatsapp.com/send?phone=${state.targetWhatsApp}`;
+            showToast(`Receipt saved! Opening WhatsApp DM (+${state.targetWhatsApp}) to attach your receipt image...`);
+            try {
+                window.open(waUrl, '_blank', 'noopener,noreferrer');
+            } catch (e) {
+                // User can also click "Open WhatsApp Chat" button in the modal
             }
         }
 
-        function copyOrderDetails() {
-            const text = buildWhatsAppMessage();
-            copyTextSafe(text, 'Order details copied! Paste into WhatsApp.');
+        function downloadReceiptImage() {
+            if (!state.latestReceiptDataUrl) return;
+            const link = document.createElement('a');
+            link.href = state.latestReceiptDataUrl;
+            link.download = state.latestReceiptFilename || 'GADELA-Order-Receipt.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Black & Red GADELA Order Receipt saved!');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
+
+        function submitOrderReceipt(event) {
+            event.preventDefault();
+            handleOrderReceiptAction(state.targetWhatsApp);
+        }
+
+        function handleDirectInquiryClick(event, num) {
+            event.preventDefault();
+            const url = `https://api.whatsapp.com/send?phone=${num}`;
+            showToast(`Opening WhatsApp DM (+${num})...`);
+            try {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } catch (e) {
+                showToast('Please open WhatsApp and message +' + num);
+            }
         }
 
         function copyTextSafe(text, successMsg) {
@@ -1271,31 +1872,6 @@ _(Note: Delivery fee depends on location)_`
             document.body.removeChild(helper);
         }
 
-        function openWhatsAppUrl(url, num) {
-            state.targetWhatsApp = num;
-            syncDirectWhatsAppLinks();
-            showToast(`Opening WhatsApp DM (+${num})...`);
-
-            const statusEl = document.getElementById('wa-fallback-status');
-
-            try {
-                const newWin = window.open(url, '_blank', 'noopener,noreferrer');
-                if (!newWin && statusEl) {
-                    statusEl.innerHTML = `Your browser/preview blocked external popups. <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-yellow-400 underline font-semibold">Click here to open WhatsApp (+${num})</a> or tap <strong>Copy Order</strong> above.`;
-                }
-            } catch (e) {
-                if (statusEl) {
-                    statusEl.innerHTML = `External link was blocked in this frame. <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-yellow-400 underline font-semibold">Open WhatsApp (+${num})</a> or copy the order details above.`;
-                }
-            }
-        }
-
-        function handleDirectWhatsAppClick(event, num) {
-            event.preventDefault();
-            const url = `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(buildWhatsAppMessage())}`;
-            openWhatsAppUrl(url, num);
-        }
-
         function showToast(msg) {
             const toast = document.getElementById('toast-notification');
             document.getElementById('toast-message').textContent = msg;
@@ -1303,12 +1879,6 @@ _(Note: Delivery fee depends on location)_`
             setTimeout(() => {
                 toast.classList.add('translate-y-24', 'opacity-0');
             }, 3500);
-        }
-
-        function submitOrderToWhatsApp(event) {
-            event.preventDefault();
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${state.targetWhatsApp}&text=${encodeURIComponent(buildWhatsAppMessage())}`;
-            openWhatsAppUrl(whatsappUrl, state.targetWhatsApp);
         }
 
         // ==================== OWNER STUDIO / ADMIN FUNCTIONS ====================
@@ -1462,9 +2032,9 @@ _(Note: Delivery fee depends on location)_`
         }
 
         function clearBrandLogo() {
-            storeData.logoUrl = '';
+            storeData.logoUrl = DEFAULT_GADELA_RED_BLACK_LOGO;
             saveStoreLocally();
-            showToast('Logo reset to empty placeholder.');
+            showToast('Logo reset to default Red & Black GADELA emblem.');
         }
 
         async function addShowcaseItem() {
@@ -1565,7 +2135,7 @@ _(Note: Delivery fee depends on location)_`
                         ${thumbHtml}
                         <span class="text-xs text-zinc-300 truncate">${entry.caption}</span>
                     </div>
-                    <button onclick="removeShowcaseItem(${entry.id})" class="text-zinc-500 hover:text-red-400 p-1.5 cursor-pointer">
+                    <button onclick="removeShowcaseItem(${entry.id})" class="text-zinc-500 hover:text-red-400 p-1 cursor-pointer">
                         <i class="fa-solid fa-trash-can text-xs"></i>
                     </button>
                 `;
@@ -1607,15 +2177,43 @@ _(Note: Delivery fee depends on location)_`
             showToast('Owner PIN updated successfully!');
         }
 
+        async function trackAndRenderVisitorCount() {
+            const headerEl = document.getElementById('visitor-count-header');
+            const footerEl = document.getElementById('visitor-count-footer');
+            const localVisitorKey = 'gadela_store_visitors_v1';
+            const sessionKey = 'gadela_session_counted_v1';
+
+            let localCount = parseInt(localStorage.getItem(localVisitorKey) || '0', 10);
+            if (!sessionStorage.getItem(sessionKey)) {
+                localCount += 1;
+                localStorage.setItem(localVisitorKey, String(localCount));
+                sessionStorage.setItem(sessionKey, '1');
+            }
+
+            const renderCount = (val) => {
+                const formatted = Number(val).toLocaleString();
+                if (headerEl) headerEl.textContent = formatted;
+                if (footerEl) footerEl.textContent = formatted;
+            };
+
+            renderCount(localCount);
+
+            try {
+                const res = await fetch('https://api.counterapi.dev/v1/gadela-money-hunter-store/visits/up');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && typeof data.count === 'number') {
+                        renderCount(data.count);
+                    }
+                }
+            } catch (e) {
+                // Falls back cleanly to local visitor count if offline or blocked
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             initializeStoreData();
-            ['customer-name', 'delivery-address', 'customer-phone'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('input', syncDirectWhatsAppLinks);
-                }
-            });
-            syncDirectWhatsAppLinks();
+            trackAndRenderVisitorCount();
         });
     </script>
 </body>
