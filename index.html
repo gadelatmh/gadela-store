@@ -733,9 +733,8 @@
                     <i class="fa-solid fa-eye text-yellow-400"></i>
                     <span>Visitors: <strong id="visitor-count-footer" class="text-zinc-200">0</strong></span>
                 </span>
-                <button type="button" onclick="openAdminModal()" class="text-zinc-600 hover:text-yellow-400 transition-colors inline-flex items-center gap-1.5 text-[11px] cursor-pointer">
-                    <i class="fa-solid fa-sliders"></i>
-                    <span>Owner Studio</span>
+                <button type="button" onclick="openAdminModal()" aria-label="Studio" class="text-zinc-700 hover:text-zinc-400 transition-colors inline-flex items-center justify-center w-6 h-6 rounded text-xs cursor-pointer">
+                    <span aria-hidden="true">⌘</span>
                 </button>
             </div>
         </div>
@@ -1745,129 +1744,34 @@
             ctx.font = '500 16px Inter, Arial, sans-serif';
             ctx.fillText(`Order ID: ${orderData.orderId}   |   ${orderData.timestamp}`, 246, 248);
 
-            ctx.strokeStyle = '#dc2626';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(64, 304);
-            ctx.lineTo(width - 64, 304);
-            ctx.stroke();
+            if (orderData.isPaid) {
+                ctx.save();
+                const stampX = width - 178;
+                const stampY = 178;
+                ctx.translate(stampX, stampY);
+                ctx.rotate(-0.18);
 
-            // Ordered Items Section
-            const itemsBoxY = 328;
-            ctx.fillStyle = '#110708';
-            drawRoundedRect(ctx, 64, itemsBoxY, width - 128, itemsSectionHeight, 18);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(220, 38, 38, 0.55)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.16)';
+                drawRoundedRect(ctx, -92, -32, 184, 64, 12);
+                ctx.fill();
 
-            ctx.fillStyle = '#dc2626';
-            ctx.fillRect(64, itemsBoxY + 14, 8, itemsSectionHeight - 28);
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 4;
+                drawRoundedRect(ctx, -92, -32, 184, 64, 12);
+                ctx.stroke();
 
-            ctx.fillStyle = '#f87171';
-            ctx.font = 'bold 18px Inter, Arial, sans-serif';
-            ctx.fillText(`ORDERED ITEMS (${orderData.totalQty} PIECE${orderData.totalQty === 1 ? '' : 'S'})`, 92, itemsBoxY + 38);
+                ctx.strokeStyle = 'rgba(74, 222, 128, 0.65)';
+                ctx.lineWidth = 1.5;
+                drawRoundedRect(ctx, -85, -25, 170, 50, 8);
+                ctx.stroke();
 
-            let cursorY = itemsBoxY + 72;
-            wrappedItemBlocks.forEach(block => {
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 23px Inter, Arial, sans-serif';
-                block.mainLines.forEach(line => {
-                    ctx.fillText(line, 92, cursorY);
-                    cursorY += 30;
-                });
-
-                ctx.fillStyle = '#fca5a5';
-                ctx.font = '600 19px Inter, Arial, sans-serif';
-                ctx.fillText(block.subLine, 114, cursorY);
-                cursorY += 36;
-            });
-
-            // Customer & Delivery Details Section
-            const custBoxY = itemsBoxY + itemsSectionHeight + 22;
-            ctx.fillStyle = '#110708';
-            drawRoundedRect(ctx, 64, custBoxY, width - 128, customerSectionHeight, 18);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(220, 38, 38, 0.55)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.fillStyle = '#dc2626';
-            ctx.fillRect(64, custBoxY + 14, 8, customerSectionHeight - 28);
-
-            ctx.fillStyle = '#f87171';
-            ctx.font = 'bold 18px Inter, Arial, sans-serif';
-            ctx.fillText('CUSTOMER & DELIVERY DETAILS', 92, custBoxY + 38);
-
-            let infoY = custBoxY + 74;
-            ctx.fillStyle = '#fca5a5';
-            ctx.font = 'bold 20px Inter, Arial, sans-serif';
-            ctx.fillText('Name:', 92, infoY);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '600 21px Inter, Arial, sans-serif';
-            ctx.fillText(orderData.customerName, 240, infoY);
-
-            infoY += 38;
-            ctx.fillStyle = '#fca5a5';
-            ctx.font = 'bold 20px Inter, Arial, sans-serif';
-            ctx.fillText('Phone:', 92, infoY);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '600 21px Inter, Arial, sans-serif';
-            ctx.fillText(orderData.customerPhone, 240, infoY);
-
-            infoY += 38;
-            ctx.fillStyle = '#fca5a5';
-            ctx.font = 'bold 20px Inter, Arial, sans-serif';
-            ctx.fillText('Address:', 92, infoY);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '600 20px Inter, Arial, sans-serif';
-            addressLines.forEach(line => {
-                ctx.fillText(line, 240, infoY);
-                infoY += 28;
-            });
-
-            // QR Code & Verification Section
-            const scanY = custBoxY + customerSectionHeight + 22;
-            ctx.fillStyle = '#110708';
-            drawRoundedRect(ctx, 64, scanY, width - 128, qrSectionHeight, 18);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(220, 38, 38, 0.65)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.fillStyle = '#dc2626';
-            ctx.fillRect(64, scanY + 14, 8, qrSectionHeight - 28);
-
-            const compactItems = (orderData.items || []).map(i => ({
-                c: i.category,
-                t: i.designTitle || '',
-                cl: i.color,
-                s: i.size,
-                q: i.qty
-            }));
-            let qrPayload = JSON.stringify({
-                id: orderData.orderId,
-                n: orderData.customerName,
-                p: orderData.customerPhone,
-                a: orderData.deliveryAddress,
-                items: compactItems
-            });
-            if (qrPayload.length > 250) {
-                qrPayload = JSON.stringify({
-                    id: orderData.orderId,
-                    n: orderData.customerName,
-                    p: orderData.customerPhone,
-                    q: orderData.totalQty
-                });
+                ctx.fillStyle = '#4ade80';
+                ctx.font = '900 28px Syne, Inter, Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAID', 0, 10);
+                ctx.restore();
             }
-            const qrSource = await generateOrderQrCanvas(qrPayload);
 
-            const qrBoxSize = 178;
-            const qrX = 94;
-            const qrY = scanY + 21;
-            ctx.fillStyle = '#000000';
-            drawRoundedRect(ctx, qrX, qrY, qrBoxSize, qrBoxSize, 12);
-            ctx.fill();
             ctx.strokeStyle = '#dc2626';
             ctx.lineWidth = 2.5;
             ctx.stroke();
