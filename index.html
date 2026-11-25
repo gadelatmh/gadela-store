@@ -2071,6 +2071,10 @@
                     <button type="button" onclick="toggleScannedReceiptPaid()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer">
                         ${record.paid ? 'Mark as Unpaid' : 'Mark Receipt as PAID'}
                     </button>
+                    <button type="button" onclick="generatePaidReceiptFromRecord()" class="bg-emerald-950 hover:bg-emerald-900 border border-emerald-400/70 text-emerald-300 font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-stamp"></i>
+                        <span>Generate PAID Receipt</span>
+                    </button>
                     <button type="button" onclick="recordRepeatPurchaseUse()" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer">
                         +1 Repeat Purchase Use
                     </button>
@@ -2092,6 +2096,60 @@
             saveReceiptRecords(records);
             renderScannedReceiptPanel(rec);
             showToast(rec.paid ? `Receipt ${rec.orderId} marked as PAID!` : `Receipt ${rec.orderId} marked as UNPAID.`);
+        }
+
+        async function generatePaidReceiptFromRecord() {
+            if (!activeScannedOrder) {
+                showToast('Scan or look up a receipt first.');
+                return;
+            }
+
+            const records = loadReceiptRecords();
+            const rec = records[activeScannedOrder.orderId] || activeScannedOrder;
+            rec.paid = true;
+            rec.paidAt = rec.paidAt || new Date().toLocaleString([], {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            records[rec.orderId] = rec;
+            saveReceiptRecords(records);
+            renderScannedReceiptPanel(rec);
+
+            const items = Array.isArray(rec.items) ? rec.items : [];
+            const totalQty = items.reduce((sum, item) => sum + (item.qty || 1), 0);
+            const paidOrderPayload = {
+                orderId: rec.orderId,
+                timestamp: rec.createdAt || rec.paidAt,
+                customerName: rec.customerName || 'Customer',
+                customerPhone: rec.customerPhone || '—',
+                deliveryAddress: rec.deliveryAddress || '—',
+                totalQty,
+                isPaid: true,
+                items
+            };
+
+            const digitsOnlyPhone = String(rec.customerPhone || '').replace(/\D/g, '');
+            const targetPhone = digitsOnlyPhone.length >= 10
+                ? (digitsOnlyPhone.startsWith('0') ? `234${digitsOnlyPhone.slice(1)}` : digitsOnlyPhone)
+                : state.targetWhatsApp;
+
+            state.targetWhatsApp = targetPhone;
+            updateReceiptModalDmTarget(targetPhone);
+
+            showToast('Generating PAID receipt with green stamp...');
+            const { dataUrl, blob } = await generateBlackAndRedReceiptImage(paidOrderPayload);
+
+            state.latestReceiptDataUrl = dataUrl;
+            state.latestReceiptBlob = blob;
+            state.latestReceiptFilename = `GADELA-PAID-Receipt-${rec.orderId}.png`;
+
+            closeAdminModal();
+            document.getElementById('receipt-preview-img').src = dataUrl;
+            document.getElementById('receipt-modal').classList.remove('hidden');
+            showToast(`PAID receipt generated for ${rec.orderId}!`);
         }
 
         function recordRepeatPurchaseUse() {
