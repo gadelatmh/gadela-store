@@ -1556,12 +1556,21 @@
                     resolve(null);
                     return;
                 }
+                let settled = false;
+                const finish = (val) => {
+                    if (!settled) {
+                        settled = true;
+                        clearTimeout(timer);
+                        resolve(val);
+                    }
+                };
+                const timer = setTimeout(() => finish(null), 1200);
                 const img = new Image();
                 if (!src.startsWith('data:')) {
                     img.crossOrigin = 'anonymous';
                 }
-                img.onload = () => resolve(img);
-                img.onerror = () => resolve(null);
+                img.onload = () => finish(img);
+                img.onerror = () => finish(null);
                 img.src = src;
             });
         }
@@ -1599,47 +1608,47 @@
         }
 
         function generateOrderQrCanvas(qrPayloadText) {
-            return new Promise((resolve) => {
-                if (typeof QRCode === 'undefined') {
-                    resolve(null);
-                    return;
-                }
-                const tempDiv = document.createElement('div');
-                tempDiv.style.position = 'fixed';
-                tempDiv.style.left = '-9999px';
-                document.body.appendChild(tempDiv);
+            if (typeof QRCode === 'undefined') {
+                return null;
+            }
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.left = '-9999px';
+            document.body.appendChild(tempDiv);
 
-                try {
-                    new QRCode(tempDiv, {
-                        text: String(qrPayloadText || '').slice(0, 260),
-                        width: 320,
-                        height: 320,
-                        colorDark: '#ffffff',
-                        colorLight: '#000000',
-                        correctLevel: QRCode.CorrectLevel.M
-                    });
+            try {
+                new QRCode(tempDiv, {
+                    text: String(qrPayloadText || '').slice(0, 260),
+                    width: 240,
+                    height: 240,
+                    colorDark: '#ffffff',
+                    colorLight: '#000000',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
 
-                    setTimeout(() => {
-                        const canvasEl = tempDiv.querySelector('canvas');
-                        const imgEl = tempDiv.querySelector('img');
-                        if (canvasEl) {
-                            resolve(canvasEl);
-                        } else if (imgEl && imgEl.complete) {
-                            resolve(imgEl);
-                        } else {
-                            resolve(null);
-                        }
-                        if (tempDiv.parentNode) {
-                            tempDiv.parentNode.removeChild(tempDiv);
-                        }
-                    }, 80);
-                } catch (err) {
-                    if (tempDiv.parentNode) {
-                        tempDiv.parentNode.removeChild(tempDiv);
-                    }
-                    resolve(null);
+                const canvasEl = tempDiv.querySelector('canvas');
+                const imgEl = tempDiv.querySelector('img');
+                const qrSource = canvasEl || (imgEl && imgEl.complete ? imgEl : null);
+
+                // Clone into a dedicated canvas before detaching so drawing is instant and safe
+                if (qrSource) {
+                    const outCanvas = document.createElement('canvas');
+                    outCanvas.width = 240;
+                    outCanvas.height = 240;
+                    const oCtx = outCanvas.getContext('2d');
+                    oCtx.fillStyle = '#000000';
+                    oCtx.fillRect(0, 0, 240, 240);
+                    oCtx.drawImage(qrSource, 0, 0, 240, 240);
+                    return outCanvas;
                 }
-            });
+                return null;
+            } catch (err) {
+                return null;
+            } finally {
+                if (tempDiv.parentNode) {
+                    tempDiv.parentNode.removeChild(tempDiv);
+                }
+            }
         }
 
         async function generateBlackAndRedReceiptImage(orderData) {
@@ -1772,10 +1781,121 @@
                 ctx.restore();
             }
 
+            // Divider Line
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.45)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(64, 304);
+            ctx.lineTo(width - 64, 304);
+            ctx.stroke();
+
+            // Ordered Items Box
+            const itemsBoxY = 328;
+            ctx.fillStyle = 'rgba(24, 6, 8, 0.85)';
+            drawRoundedRect(ctx, 64, itemsBoxY, width - 128, itemsSectionHeight, 18);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.55)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Left Red Accent Bar inside Items Box
+            ctx.fillStyle = '#dc2626';
+            drawRoundedRect(ctx, 78, itemsBoxY + 18, 6, itemsSectionHeight - 36, 3);
+            ctx.fill();
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '800 18px Inter, Arial, sans-serif';
+            ctx.fillText(`ORDERED ITEMS (${orderData.totalQty || 0} PIECE${(orderData.totalQty || 0) === 1 ? '' : 'S'})`, 102, itemsBoxY + 38);
+
+            let itemCursorY = itemsBoxY + 74;
+            wrappedItemBlocks.forEach(block => {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 23px Inter, Arial, sans-serif';
+                block.mainLines.forEach(line => {
+                    ctx.fillText(line, 102, itemCursorY);
+                    itemCursorY += 29;
+                });
+
+                ctx.fillStyle = '#fca5a5';
+                ctx.font = '500 18px Inter, Arial, sans-serif';
+                ctx.fillText(block.subLine, 122, itemCursorY);
+                itemCursorY += 32;
+            });
+
+            // Customer & Delivery Details Box
+            const custBoxY = itemsBoxY + itemsSectionHeight + 24;
+            ctx.fillStyle = 'rgba(24, 6, 8, 0.85)';
+            drawRoundedRect(ctx, 64, custBoxY, width - 128, customerSectionHeight, 18);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.55)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '800 18px Inter, Arial, sans-serif';
+            ctx.fillText('CUSTOMER & DELIVERY DETAILS', 90, custBoxY + 38);
+
+            const drawDetailRow = (label, value, yPos, isBoldValue = false) => {
+                ctx.fillStyle = '#fca5a5';
+                ctx.font = '600 19px Inter, Arial, sans-serif';
+                ctx.fillText(label, 90, yPos);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = isBoldValue ? 'bold 20px Inter, Arial, sans-serif' : '500 19px Inter, Arial, sans-serif';
+                ctx.fillText(value, 240, yPos);
+            };
+
+            drawDetailRow('Name:', orderData.customerName || '—', custBoxY + 74, true);
+            drawDetailRow('Phone:', orderData.customerPhone || '—', custBoxY + 108, true);
+
+            ctx.fillStyle = '#fca5a5';
+            ctx.font = '600 19px Inter, Arial, sans-serif';
+            ctx.fillText('Address:', 90, custBoxY + 142);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '500 19px Inter, Arial, sans-serif';
+            let addrY = custBoxY + 142;
+            addressLines.forEach(line => {
+                ctx.fillText(line, 240, addrY);
+                addrY += 27;
+            });
+
+            // QR Code & Re-Use Box with High-Contrast White QR on Solid Black
+            const scanY = custBoxY + customerSectionHeight + 24;
+            ctx.fillStyle = 'rgba(24, 6, 8, 0.9)';
+            drawRoundedRect(ctx, 64, scanY, width - 128, qrSectionHeight, 18);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.65)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#ef4444';
+            drawRoundedRect(ctx, 78, scanY + 18, 6, qrSectionHeight - 36, 3);
+            ctx.fill();
+
+            const qrBoxSize = 180;
+            const qrX = 96;
+            const qrY = scanY + Math.round((qrSectionHeight - qrBoxSize) / 2);
+
+            // Solid black square + quiet zone border so white QR modules stand out clearly
+            ctx.fillStyle = '#000000';
+            drawRoundedRect(ctx, qrX, qrY, qrBoxSize, qrBoxSize, 14);
+            ctx.fill();
             ctx.strokeStyle = '#dc2626';
             ctx.lineWidth = 2.5;
             ctx.stroke();
 
+            // Keep QR payload short so modules stay large and easy for cameras/jsQR to read
+            const compactQrPayload = JSON.stringify({
+                id: orderData.orderId,
+                n: String(orderData.customerName || '').slice(0, 36),
+                p: String(orderData.customerPhone || '').slice(0, 24),
+                a: String(orderData.deliveryAddress || '').slice(0, 60),
+                q: orderData.totalQty || 1
+            });
+
+            const qrSource = generateOrderQrCanvas(compactQrPayload);
             if (qrSource) {
                 ctx.drawImage(qrSource, qrX + 14, qrY + 14, qrBoxSize - 28, qrBoxSize - 28);
             }
@@ -1814,7 +1934,18 @@
             ctx.fillText('GADELA — We hunt money every day.', width / 2, footerY + 34);
 
             const dataUrl = canvas.toDataURL('image/png');
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            let blob = null;
+            try {
+                const byteString = atob(dataUrl.split(',')[1]);
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                blob = new Blob([ab], { type: 'image/png' });
+            } catch (e) {
+                blob = null;
+            }
 
             return { dataUrl, blob };
         }
@@ -1875,7 +2006,6 @@
 
             registerIssuedReceipt(orderPayload);
 
-            showToast('Generating black & red GADELA receipt image...');
             const { dataUrl, blob } = await generateBlackAndRedReceiptImage(orderPayload);
 
             state.latestReceiptDataUrl = dataUrl;
