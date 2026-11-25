@@ -137,16 +137,17 @@
                         <span>Save Receipt Image</span>
                     </button>
                     <a id="receipt-open-wa-direct"
-                       href="https://api.whatsapp.com/send?phone=2347080713892"
+                       href="https://wa.me/2347080713892"
                        target="_blank"
                        rel="noopener noreferrer"
+                       onclick="openSpecificWhatsAppDm(state.targetWhatsApp)"
                        class="bg-zinc-900 hover:bg-zinc-800 border border-emerald-700/50 text-emerald-300 font-semibold text-xs py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
                         <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-                        <span>Open WhatsApp Chat</span>
+                        <span id="receipt-dm-btn-label">Open DM (+2347080713892)</span>
                     </a>
                 </div>
                 <p id="receipt-helper-note" class="text-[11px] text-zinc-400 text-center leading-relaxed pt-0.5">
-                    On mobile, tap <strong class="text-red-400">Send Receipt Image</strong> to attach the receipt directly to WhatsApp. On desktop, the receipt downloads automatically so you can drop it straight into the WhatsApp chat.
+                    Tip: If your phone opens WhatsApp without attaching the file automatically, tap <strong class="text-red-400">Save Receipt Image</strong> first, then tap <strong class="text-emerald-400">Open DM</strong> to go straight to the number's chat and attach it from your gallery.
                 </p>
             </div>
         </div>
@@ -488,7 +489,7 @@
                                 <span class="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
                                     Available <span id="slot-category-name" class="text-white">T-Shirt</span> Designs
                                 </span>
-                                <span id="design-slot-helper" class="text-[11px] text-zinc-500">Tap any design to view & add to order</span>
+                                <span id="design-slot-helper" class="text-[11px] text-zinc-500">Tap any design to view details before adding</span>
                             </div>
                             
                             <div id="design-slots-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
@@ -518,12 +519,12 @@
                                 <i class="fa-brands fa-whatsapp text-emerald-400 text-lg"></i>
                                 Contact — Direct WhatsApp DM
                             </h2>
-                            <p class="text-xs text-zinc-500 mt-1">Tap either number to message GADELA directly on WhatsApp.</p>
+                            <p class="text-xs text-zinc-500 mt-1">Tap either number to open that number's WhatsApp DM directly.</p>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3">
                             <a id="contact-wa-primary"
-                               href="https://api.whatsapp.com/send?phone=2347080713892&text=Hello%20GADELA%20Money%20Hunter%2C%20I%20would%20like%20to%20make%20an%20inquiry." 
+                               href="https://wa.me/2347080713892" 
                                target="_blank" 
                                rel="noopener noreferrer"
                                onclick="handleDirectInquiryClick(event, '2347080713892')"
@@ -535,7 +536,7 @@
                             <span class="text-zinc-600 font-bold hidden sm:inline">/</span>
 
                             <a id="contact-wa-backup"
-                               href="https://api.whatsapp.com/send?phone=2349167187337&text=Hello%20GADELA%20Money%20Hunter%2C%20I%20would%20like%20to%20make%20an%20inquiry." 
+                               href="https://wa.me/2349167187337" 
                                target="_blank" 
                                rel="noopener noreferrer"
                                onclick="handleDirectInquiryClick(event, '2349167187337')"
@@ -655,7 +656,7 @@
                                 </button>
                             </div>
                             <p class="text-[11px] text-zinc-400 leading-relaxed">
-                                Orders are generated as a <strong class="text-red-400">Black & Red GADELA Receipt Image</strong> with the official red-and-black GADELA logo stamped on top—no plain text messages.
+                                Orders are generated as a <strong class="text-red-400">Black & Red GADELA Receipt Image</strong> with the official red-and-black GADELA logo and scannable QR code—no plain text messages.
                             </p>
                         </div>
                     </form>
@@ -797,6 +798,54 @@
             latestReceiptFilename: 'GADELA-Order-Receipt.png',
             selectedItems: []
         };
+
+        function getWhatsAppDmUrls(phoneNumber) {
+            const cleanDigits = String(phoneNumber || '2347080713892').replace(/\D/g, '');
+            return {
+                webUrl: `https://wa.me/${cleanDigits}`,
+                apiUrl: `https://api.whatsapp.com/send?phone=${cleanDigits}`,
+                appUrl: `whatsapp://send?phone=${cleanDigits}`
+            };
+        }
+
+        function openSpecificWhatsAppDm(phoneNumber) {
+            const cleanDigits = String(phoneNumber || state.targetWhatsApp || '2347080713892').replace(/\D/g, '');
+            state.targetWhatsApp = cleanDigits;
+            updateReceiptModalDmTarget(cleanDigits);
+
+            const { webUrl, appUrl } = getWhatsAppDmUrls(cleanDigits);
+            const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+
+            if (isMobile) {
+                window.location.href = appUrl;
+                setTimeout(() => {
+                    window.open(webUrl, '_blank', 'noopener,noreferrer');
+                }, 450);
+            } else {
+                const win = window.open(webUrl, '_blank', 'noopener,noreferrer');
+                if (!win) {
+                    window.location.href = webUrl;
+                }
+            }
+        }
+
+        function updateReceiptModalDmTarget(phoneNumber) {
+            const cleanDigits = String(phoneNumber || '2347080713892').replace(/\D/g, '');
+            const { webUrl } = getWhatsAppDmUrls(cleanDigits);
+            const shareBtnLabel = document.getElementById('share-receipt-btn-label');
+            const directWaBtn = document.getElementById('receipt-open-wa-direct');
+            const dmBtnLabel = document.getElementById('receipt-dm-btn-label');
+
+            if (shareBtnLabel) {
+                shareBtnLabel.textContent = `Send Receipt Image to +${cleanDigits} DM`;
+            }
+            if (directWaBtn) {
+                directWaBtn.href = webUrl;
+            }
+            if (dmBtnLabel) {
+                dmBtnLabel.textContent = `Open DM (+${cleanDigits})`;
+            }
+        }
 
         function buildItemKey(category, designTitle, color, size) {
             return `${category}|${designTitle || ''}|${color}|${size}`;
@@ -1419,7 +1468,6 @@
             ctx.closePath();
         }
 
-        // Generate a crisp Red & Black Scannable QR Code Image for the Order Receipt
         function generateOrderQrCanvas(qrPayloadText) {
             return new Promise((resolve) => {
                 if (typeof QRCode === 'undefined') {
@@ -1482,11 +1530,9 @@
             const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' +
                             now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-            // Build compact scan payload so any phone camera scanner reads the full order instantly
             const compactItems = items.map(it => `${it.category}${it.designTitle ? '(' + it.designTitle + ')' : ''}[${it.color}/${it.size}]x${it.qty}`).join('; ');
             const qrPayload = `GADELA ORDER ${orderNumber}\nName: ${name}\nPhone: ${phone}\nAddr: ${address}\nItems: ${compactItems}`;
 
-            // Load the Red & Black GADELA Logo and Generate Scannable QR Code in parallel
             let [logoImg, qrSource] = await Promise.all([
                 loadImageForCanvas(storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO),
                 generateOrderQrCanvas(qrPayload)
@@ -1495,7 +1541,6 @@
                 logoImg = await loadImageForCanvas(DEFAULT_GADELA_RED_BLACK_LOGO);
             }
 
-            // Pre-calculate dynamic canvas height based on number of items and wrapped address lines
             const width = 900;
             const measureCanvas = document.createElement('canvas');
             const mCtx = measureCanvas.getContext('2d');
@@ -1512,7 +1557,6 @@
             canvas.height = totalHeight;
             const ctx = canvas.getContext('2d');
 
-            // 1. Deep Obsidian Black Background with Subtle Crimson Radial Glow
             ctx.fillStyle = '#050505';
             ctx.fillRect(0, 0, width, totalHeight);
 
@@ -1522,7 +1566,6 @@
             ctx.fillStyle = topGlow;
             ctx.fillRect(0, 0, width, 540);
 
-            // Outer Double Crimson Frame
             ctx.strokeStyle = '#dc2626';
             ctx.lineWidth = 6;
             drawRoundedRect(ctx, 24, 24, width - 48, totalHeight - 48, 28);
@@ -1533,7 +1576,6 @@
             drawRoundedRect(ctx, 38, 38, width - 76, totalHeight - 76, 20);
             ctx.stroke();
 
-            // Top Crimson Header Banner Bar
             ctx.fillStyle = '#991b1b';
             ctx.fillRect(38, 38, width - 76, 56);
             ctx.fillStyle = '#ffffff';
@@ -1541,7 +1583,6 @@
             ctx.textAlign = 'center';
             ctx.fillText('OFFICIAL ORDER RECEIPT  •  GADELA STREETWEAR', width / 2, 73);
 
-            // 2. Red & Black GADELA Logo Artwork Stamp
             const logoBoxSize = 210;
             const logoX = (width - logoBoxSize) / 2;
             const logoY = 115;
@@ -1566,7 +1607,6 @@
                 );
             }
 
-            // Brand Title & Subtitle under Logo
             ctx.fillStyle = '#ffffff';
             ctx.font = '800 46px Syne, Inter, sans-serif';
             ctx.textAlign = 'center';
@@ -1576,7 +1616,6 @@
             ctx.font = '800 18px Inter, sans-serif';
             ctx.fillText('MONEY HUNTER  •  OFFICIAL ORDER VOUCHER', width / 2, 412);
 
-            // Order Ref & Timestamp Pill
             ctx.fillStyle = '#140505';
             drawRoundedRect(ctx, 70, 434, width - 140, 52, 12);
             ctx.fill();
@@ -1594,7 +1633,6 @@
             ctx.font = '600 17px Inter, sans-serif';
             ctx.fillText(dateStr, width - 92, 466);
 
-            // 3. Ordered Items Section (Black & Red Card)
             let cursorY = 512;
             ctx.fillStyle = '#0d0606';
             drawRoundedRect(ctx, 70, cursorY, width - 140, itemsBlockHeight, 16);
@@ -1626,7 +1664,6 @@
                 ctx.font = '700 23px Inter, sans-serif';
                 ctx.fillText(titleText, 94, itemY);
 
-                // Quantity Badge on Right
                 ctx.fillStyle = '#dc2626';
                 drawRoundedRect(ctx, width - 172, itemY - 24, 78, 34, 8);
                 ctx.fill();
@@ -1635,7 +1672,6 @@
                 ctx.font = '800 20px Inter, sans-serif';
                 ctx.fillText(`×${item.qty}`, width - 133, itemY);
 
-                // Color, Size & Price Sub-line
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#fca5a5';
                 ctx.font = '600 18px Inter, sans-serif';
@@ -1645,7 +1681,6 @@
                 itemY += 86;
             });
 
-            // 4. Customer Delivery Details Section
             cursorY += itemsBlockHeight + 24;
             ctx.fillStyle = '#0d0606';
             drawRoundedRect(ctx, 70, cursorY, width - 140, customerBlockHeight, 16);
@@ -1666,7 +1701,6 @@
             ctx.lineTo(width - 94, cursorY + 50);
             ctx.stroke();
 
-            // Customer Name
             ctx.fillStyle = '#a1a1aa';
             ctx.font = '700 15px Inter, sans-serif';
             ctx.fillText('CUSTOMER NAME:', 94, cursorY + 84);
@@ -1674,7 +1708,6 @@
             ctx.font = '700 24px Inter, sans-serif';
             ctx.fillText(name, 94, cursorY + 114);
 
-            // Phone Number
             ctx.fillStyle = '#a1a1aa';
             ctx.font = '700 15px Inter, sans-serif';
             ctx.fillText('PHONE NUMBER:', 94, cursorY + 152);
@@ -1682,7 +1715,6 @@
             ctx.font = '700 24px Inter, sans-serif';
             ctx.fillText(phone, 94, cursorY + 182);
 
-            // Delivery Address
             ctx.fillStyle = '#a1a1aa';
             ctx.font = '700 15px Inter, sans-serif';
             ctx.fillText('DELIVERY ADDRESS:', 94, cursorY + 218);
@@ -1692,7 +1724,6 @@
                 ctx.fillText(line, 94, cursorY + 248 + (i * 32));
             });
 
-            // 5. Scannable QR Verification Block (Black & Red)
             const scanY = cursorY + customerBlockHeight + 24;
             ctx.fillStyle = '#0d0606';
             drawRoundedRect(ctx, 70, scanY, width - 140, scanBlockHeight, 16);
@@ -1701,7 +1732,6 @@
             ctx.lineWidth = 2.5;
             ctx.stroke();
 
-            // QR Box on Left
             const qrBoxSize = 172;
             const qrX = 96;
             const qrY = scanY + 24;
@@ -1716,7 +1746,6 @@
                 ctx.drawImage(qrSource, qrX + 10, qrY + 10, qrBoxSize - 20, qrBoxSize - 20);
             }
 
-            // Scan Instructions & Verification Details on Right
             const scanTextX = qrX + qrBoxSize + 28;
             ctx.textAlign = 'left';
             ctx.fillStyle = '#ef4444';
@@ -1733,7 +1762,6 @@
             ctx.fillText('to instantly view customer & order items', scanTextX, scanY + 148);
             ctx.fillText('for dispatch and delivery confirmation.', scanTextX, scanY + 172);
 
-            // 6. Footer Note (Delivery Fee & Official WhatsApp Lines)
             const footerY = scanY + scanBlockHeight + 22;
             ctx.fillStyle = '#7f1d1d';
             drawRoundedRect(ctx, 70, footerY, width - 140, 88, 14);
@@ -1776,18 +1804,14 @@
                 return;
             }
 
-            state.targetWhatsApp = targetPhoneNumber;
+            state.targetWhatsApp = String(targetPhoneNumber).replace(/\D/g, '');
             showToast('Generating your Black & Red GADELA Receipt...');
 
             const receipt = await generateBlackRedReceiptImage();
 
             const previewImg = document.getElementById('receipt-preview-img');
-            const shareBtnLabel = document.getElementById('share-receipt-btn-label');
-            const directWaBtn = document.getElementById('receipt-open-wa-direct');
-
             if (previewImg) previewImg.src = receipt.dataUrl;
-            if (shareBtnLabel) shareBtnLabel.textContent = `Send Receipt Image to WhatsApp (+${targetPhoneNumber})`;
-            if (directWaBtn) directWaBtn.href = `https://api.whatsapp.com/send?phone=${targetPhoneNumber}`;
+            updateReceiptModalDmTarget(state.targetWhatsApp);
 
             document.getElementById('receipt-modal').classList.remove('hidden');
         }
@@ -1797,31 +1821,27 @@
                 await generateBlackRedReceiptImage();
             }
 
+            const targetNum = String(state.targetWhatsApp || '2347080713892').replace(/\D/g, '');
             const file = new File([state.latestReceiptBlob], state.latestReceiptFilename, { type: 'image/png' });
 
-            // On mobile / browsers supporting Web Share API with files, share the receipt image directly to WhatsApp
+            // Always save/prepare the receipt image so the customer has it ready to attach in the DM
+            downloadReceiptImage();
+
+            // On supported browsers with file sharing, trigger native share sheet without text
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
                     await navigator.share({
-                        files: [file],
-                        title: 'GADELA Official Order Receipt'
+                        files: [file]
                     });
-                    showToast('Receipt image shared!');
                     return;
                 } catch (err) {
                     if (err && err.name === 'AbortError') return;
                 }
             }
 
-            // Desktop / fallback: download the receipt PNG automatically and open the WhatsApp DM chat window
-            downloadReceiptImage();
-            const waUrl = `https://api.whatsapp.com/send?phone=${state.targetWhatsApp}`;
-            showToast(`Receipt saved! Opening WhatsApp DM (+${state.targetWhatsApp}) to attach your receipt image...`);
-            try {
-                window.open(waUrl, '_blank', 'noopener,noreferrer');
-            } catch (e) {
-                // User can also click "Open WhatsApp Chat" button in the modal
-            }
+            // Open the specific WhatsApp number DM chat directly
+            showToast(`Opening WhatsApp DM for +${targetNum}...`);
+            openSpecificWhatsAppDm(targetNum);
         }
 
         function downloadReceiptImage() {
@@ -1846,13 +1866,11 @@
 
         function handleDirectInquiryClick(event, num) {
             event.preventDefault();
-            const url = `https://api.whatsapp.com/send?phone=${num}`;
-            showToast(`Opening WhatsApp DM (+${num})...`);
-            try {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            } catch (e) {
-                showToast('Please open WhatsApp and message +' + num);
-            }
+            const cleanDigits = String(num).replace(/\D/g, '');
+            state.targetWhatsApp = cleanDigits;
+            updateReceiptModalDmTarget(cleanDigits);
+            showToast(`Opening WhatsApp DM (+${cleanDigits})...`);
+            openSpecificWhatsAppDm(cleanDigits);
         }
 
         function copyTextSafe(text, successMsg) {
