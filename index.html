@@ -556,6 +556,10 @@
                                 </button>
                             </div>
                             <div id="selected-items-list" class="space-y-2"></div>
+                            <div id="bag-total-bar" class="hidden mt-3 bg-zinc-900/90 border border-yellow-400/40 rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase tracking-wider text-zinc-300">Estimated Total</span>
+                                <span id="bag-total-amount" class="text-sm font-extrabold text-yellow-400">₦0</span>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -636,6 +640,10 @@
                             </div>
                             <div id="form-item-display" class="text-xs font-medium text-zinc-500 leading-relaxed">
                                 No items selected yet. Choose your clothing from the collection first.
+                            </div>
+                            <div id="form-total-row" class="hidden pt-2 mt-1.5 border-t border-zinc-800/90 flex items-center justify-between">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Total Amount</span>
+                                <span id="form-total-amount" class="text-sm font-extrabold text-yellow-400">₦0</span>
                             </div>
                         </div>
 
@@ -1115,9 +1123,45 @@
             showToast('Cleared selected items.');
         }
 
+        function parseNumericPrice(priceStr) {
+            if (!priceStr) return 0;
+            const cleaned = String(priceStr).replace(/[^\d.]/g, '');
+            const val = parseFloat(cleaned);
+            return Number.isFinite(val) ? val : 0;
+        }
+
+        function formatCurrencyTotal(amount, items) {
+            const sample = (items || []).find(i => i && i.price && String(i.price).trim());
+            let prefix = '₦';
+            if (sample) {
+                const match = String(sample.price).trim().match(/^([^\d\s]+)/);
+                if (match) prefix = match[1];
+            }
+            return `${prefix}${Number(amount || 0).toLocaleString()}`;
+        }
+
+        function calculateItemsTotal(items) {
+            let total = 0;
+            let hasPricedItem = false;
+            (items || []).forEach(item => {
+                const unit = parseNumericPrice(item.price);
+                if (unit > 0) {
+                    hasPricedItem = true;
+                    total += unit * (item.qty || 1);
+                }
+            });
+            return {
+                total,
+                hasPricedItem,
+                formatted: hasPricedItem ? formatCurrencyTotal(total, items) : ''
+            };
+        }
+
         function renderSelectedItemsBag() {
             const container = document.getElementById('selected-items-list');
             const countBadge = document.getElementById('bag-count-badge');
+            const bagTotalBar = document.getElementById('bag-total-bar');
+            const bagTotalAmount = document.getElementById('bag-total-amount');
             if (!container || !countBadge) return;
 
             const totalQty = state.selectedItems.reduce((sum, item) => sum + item.qty, 0);
@@ -1125,12 +1169,23 @@
             container.innerHTML = '';
 
             if (state.selectedItems.length === 0) {
+                if (bagTotalBar) bagTotalBar.classList.add('hidden');
                 container.innerHTML = `
                     <div class="text-xs text-zinc-500 bg-zinc-900/50 border border-dashed border-zinc-800 rounded-xl p-3 text-center">
                         No items selected yet. Tap designs above or click <strong>Add Current Piece</strong> to select multiple items.
                     </div>
                 `;
                 return;
+            }
+
+            const totals = calculateItemsTotal(state.selectedItems);
+            if (bagTotalBar && bagTotalAmount) {
+                if (totals.hasPricedItem) {
+                    bagTotalAmount.textContent = totals.formatted;
+                    bagTotalBar.classList.remove('hidden');
+                } else {
+                    bagTotalBar.classList.add('hidden');
+                }
             }
 
             state.selectedItems.forEach(item => {
@@ -1481,6 +1536,8 @@
             const builderBadge = document.getElementById('selected-summary-badge');
             const formDisplay = document.getElementById('form-item-display');
             const totalQtyBadge = document.getElementById('form-total-qty-badge');
+            const formTotalRow = document.getElementById('form-total-row');
+            const formTotalAmount = document.getElementById('form-total-amount');
 
             if (builderBadge) {
                 builderBadge.textContent = `${state.category} • ${state.color} • Size ${state.size}`;
@@ -1488,12 +1545,22 @@
 
             const items = getEffectiveOrderItems();
             const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+            const totals = calculateItemsTotal(items);
 
             if (totalQtyBadge) {
                 totalQtyBadge.textContent = `${totalQty} Piece${totalQty === 1 ? '' : 's'}`;
                 totalQtyBadge.className = totalQty > 0
                     ? 'text-[11px] font-bold text-yellow-400'
                     : 'text-[11px] font-bold text-zinc-400';
+            }
+
+            if (formTotalRow && formTotalAmount) {
+                if (items.length > 0 && totals.hasPricedItem) {
+                    formTotalAmount.textContent = totals.formatted;
+                    formTotalRow.classList.remove('hidden');
+                } else {
+                    formTotalRow.classList.add('hidden');
+                }
             }
 
             if (formDisplay) {
@@ -1673,8 +1740,10 @@
 
             mCtx.font = '600 20px Inter, Arial, sans-serif';
             const addressLines = wrapCanvasLines(mCtx, orderData.deliveryAddress || 'Not provided', 530);
+            const totalsInfo = calculateItemsTotal(items);
+            const totalBannerExtra = totalsInfo.hasPricedItem ? 54 : 0;
 
-            const itemsSectionHeight = Math.max(130, wrappedItemBlocks.reduce((acc, b) => acc + (b.mainLines.length * 30) + 36, 56));
+            const itemsSectionHeight = Math.max(130, wrappedItemBlocks.reduce((acc, b) => acc + (b.mainLines.length * 30) + 36, 56) + totalBannerExtra);
             const customerSectionHeight = Math.max(175, 112 + (addressLines.length * 28));
             const qrSectionHeight = 220;
             const height = 430 + itemsSectionHeight + customerSectionHeight + qrSectionHeight;
@@ -1713,7 +1782,7 @@
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 17px Inter, Arial, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('OFFICIAL ORDER RECEIPT  •  DIRECT WHATSAPP DM', width / 2, 85);
+            ctx.fillText('OFFICIAL ORDER RECEIPT', width / 2, 85);
 
             // Red & Black GADELA Logo Box
             const logoBoxX = 64;
@@ -1752,34 +1821,6 @@
             ctx.fillStyle = '#fca5a5';
             ctx.font = '500 16px Inter, Arial, sans-serif';
             ctx.fillText(`Order ID: ${orderData.orderId}   |   ${orderData.timestamp}`, 246, 248);
-
-            if (orderData.isPaid) {
-                ctx.save();
-                const stampX = width - 178;
-                const stampY = 178;
-                ctx.translate(stampX, stampY);
-                ctx.rotate(-0.18);
-
-                ctx.fillStyle = 'rgba(16, 185, 129, 0.16)';
-                drawRoundedRect(ctx, -92, -32, 184, 64, 12);
-                ctx.fill();
-
-                ctx.strokeStyle = '#22c55e';
-                ctx.lineWidth = 4;
-                drawRoundedRect(ctx, -92, -32, 184, 64, 12);
-                ctx.stroke();
-
-                ctx.strokeStyle = 'rgba(74, 222, 128, 0.65)';
-                ctx.lineWidth = 1.5;
-                drawRoundedRect(ctx, -85, -25, 170, 50, 8);
-                ctx.stroke();
-
-                ctx.fillStyle = '#4ade80';
-                ctx.font = '900 28px Syne, Inter, Arial, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('PAID', 0, 10);
-                ctx.restore();
-            }
 
             // Divider Line
             ctx.strokeStyle = 'rgba(220, 38, 38, 0.45)';
@@ -1822,6 +1863,26 @@
                 ctx.fillText(block.subLine, 122, itemCursorY);
                 itemCursorY += 32;
             });
+
+            if (totalsInfo.hasPricedItem) {
+                ctx.strokeStyle = 'rgba(220, 38, 38, 0.45)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(102, itemCursorY - 12);
+                ctx.lineTo(width - 96, itemCursorY - 12);
+                ctx.stroke();
+
+                ctx.fillStyle = '#fca5a5';
+                ctx.font = '700 19px Inter, Arial, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText('TOTAL AMOUNT:', 102, itemCursorY + 22);
+
+                ctx.fillStyle = '#eab308';
+                ctx.font = '900 25px Inter, Arial, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(totalsInfo.formatted, width - 96, itemCursorY + 24);
+                ctx.textAlign = 'left';
+            }
 
             // Customer & Delivery Details Box
             const custBoxY = itemsBoxY + itemsSectionHeight + 24;
@@ -1902,25 +1963,56 @@
 
             const scanTextX = qrX + qrBoxSize + 26;
             ctx.fillStyle = '#ef4444';
-            ctx.font = '800 20px Inter, Arial, sans-serif';
-            ctx.fillText('SCAN FOR PAYMENT & RE-USE', scanTextX, scanY + 52);
+            ctx.font = '800 22px Inter, Arial, sans-serif';
+            ctx.fillText('SCAN FOR PAYMENT & RE-USE', scanTextX, scanY + 86);
 
             ctx.fillStyle = '#ffffff';
-            ctx.font = '600 17px Inter, Arial, sans-serif';
-            ctx.fillText(`Order Code: ${orderData.orderId}`, scanTextX, scanY + 86);
+            ctx.font = '700 19px Inter, Arial, sans-serif';
+            ctx.fillText(`Order Code: ${orderData.orderId}`, scanTextX, scanY + 124);
 
-            ctx.fillStyle = '#fca5a5';
-            ctx.font = '500 15px Inter, Arial, sans-serif';
-            const scanDescLines = wrapCanvasLines(
-                ctx,
-                'Scan in Owner Studio (Tab 3) to verify payment, mark PAID, or track repeat purchases with this same receipt.',
-                430
-            );
-            let scanLineY = scanY + 118;
-            scanDescLines.forEach(line => {
-                ctx.fillText(line, scanTextX, scanLineY);
-                scanLineY += 22;
-            });
+            // Tamper-resistant, large centered green PAID stamp across the middle of the receipt
+            if (orderData.isPaid) {
+                ctx.save();
+                const stampX = width / 2;
+                const stampY = Math.round(height * 0.50);
+                ctx.translate(stampX, stampY);
+                ctx.rotate(-0.26);
+
+                // Subtle diagonal security lines across the stamp so it cannot be cleanly erased
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.28)';
+                ctx.lineWidth = 2;
+                for (let sx = -290; sx <= 290; sx += 26) {
+                    ctx.beginPath();
+                    ctx.moveTo(sx, -110);
+                    ctx.lineTo(sx + 40, 110);
+                    ctx.stroke();
+                }
+
+                // Translucent green stamp seal overlapping items & customer details
+                ctx.fillStyle = 'rgba(22, 163, 74, 0.22)';
+                drawRoundedRect(ctx, -270, -96, 540, 192, 26);
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.92)';
+                ctx.lineWidth = 10;
+                drawRoundedRect(ctx, -270, -96, 540, 192, 26);
+                ctx.stroke();
+
+                ctx.strokeStyle = 'rgba(74, 222, 128, 0.85)';
+                ctx.lineWidth = 3;
+                drawRoundedRect(ctx, -252, -78, 504, 156, 18);
+                ctx.stroke();
+
+                ctx.fillStyle = 'rgba(74, 222, 128, 0.88)';
+                ctx.font = '900 108px Syne, Inter, Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAID', 0, 26);
+
+                ctx.fillStyle = 'rgba(187, 247, 208, 0.92)';
+                ctx.font = '800 18px Inter, Arial, sans-serif';
+                ctx.fillText(`VERIFIED • ${orderData.orderId}`, 0, 62);
+                ctx.restore();
+            }
 
             // Footer Bar
             const footerY = scanY + qrSectionHeight + 22;
@@ -2530,31 +2622,35 @@
             const urlInput = document.getElementById('new-item-url').value.trim();
             const fileInput = document.getElementById('new-item-file');
 
-            let finalImage = urlInput;
-            if (!finalImage && fileInput.files && fileInput.files[0]) {
-                finalImage = await readCompressedImage(fileInput.files[0]);
+            try {
+                let finalImage = urlInput;
+                if (!finalImage && fileInput.files && fileInput.files[0]) {
+                    finalImage = await readCompressedImage(fileInput.files[0]);
+                }
+
+                if (!finalImage) {
+                    showToast('Please paste an image URL or choose a photo file first.');
+                    return;
+                }
+
+                storeData.collections[category].push({
+                    id: Date.now(),
+                    title,
+                    price,
+                    image: finalImage
+                });
+
+                document.getElementById('new-item-title').value = '';
+                document.getElementById('new-item-price').value = '';
+                document.getElementById('new-item-url').value = '';
+                fileInput.value = '';
+
+                saveStoreLocally();
+                selectCategory(category);
+                showToast(`Added "${title}" to ${category}!`);
+            } catch (err) {
+                showToast('Could not process that image file. Try another photo or URL.');
             }
-
-            if (!finalImage) {
-                showToast('Please paste an image URL or choose a photo file first.');
-                return;
-            }
-
-            storeData.collections[category].push({
-                id: Date.now(),
-                title,
-                price,
-                image: finalImage
-            });
-
-            document.getElementById('new-item-title').value = '';
-            document.getElementById('new-item-price').value = '';
-            document.getElementById('new-item-url').value = '';
-            fileInput.value = '';
-
-            saveStoreLocally();
-            selectCategory(category);
-            showToast(`Added "${title}" to ${category}!`);
         }
 
         function removeCollectionItem(category, id) {
@@ -2567,21 +2663,25 @@
             const urlInput = document.getElementById('admin-logo-url').value.trim();
             const fileInput = document.getElementById('admin-logo-file');
 
-            let finalLogo = urlInput;
-            if (!finalLogo && fileInput.files && fileInput.files[0]) {
-                finalLogo = await readCompressedImage(fileInput.files[0]);
-            }
+            try {
+                let finalLogo = urlInput;
+                if (!finalLogo && fileInput.files && fileInput.files[0]) {
+                    finalLogo = await readCompressedImage(fileInput.files[0]);
+                }
 
-            if (!finalLogo) {
-                showToast('Enter a logo URL or select a logo image file.');
-                return;
-            }
+                if (!finalLogo) {
+                    showToast('Enter a logo URL or select a logo image file.');
+                    return;
+                }
 
-            storeData.logoUrl = finalLogo;
-            document.getElementById('admin-logo-url').value = '';
-            fileInput.value = '';
-            saveStoreLocally();
-            showToast('GADELA Logo updated!');
+                storeData.logoUrl = finalLogo;
+                document.getElementById('admin-logo-url').value = '';
+                fileInput.value = '';
+                saveStoreLocally();
+                showToast('GADELA Logo updated!');
+            } catch (err) {
+                showToast('Could not load logo image. Try another file or URL.');
+            }
         }
 
         function clearBrandLogo() {
@@ -2595,45 +2695,44 @@
             const urlInput = document.getElementById('new-showcase-url').value.trim();
             const fileInput = document.getElementById('new-showcase-file');
 
-            let finalMedia = urlInput;
-            let mediaType = 'image';
+            try {
+                let finalMedia = urlInput;
+                let mediaType = 'image';
 
-            if (urlInput) {
-                mediaType = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(urlInput) ? 'video' : 'image';
-            } else if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                if (file.type.startsWith('video/')) {
-                    try {
+                if (urlInput) {
+                    mediaType = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(urlInput) ? 'video' : 'image';
+                } else if (fileInput.files && fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    if (file.type.startsWith('video/')) {
                         finalMedia = await readVideoDataUrl(file);
                         mediaType = 'video';
-                    } catch (err) {
-                        showToast(err.message);
-                        return;
+                    } else {
+                        finalMedia = await readCompressedImage(file);
+                        mediaType = 'image';
                     }
-                } else {
-                    finalMedia = await readCompressedImage(file);
-                    mediaType = 'image';
                 }
+
+                if (!finalMedia) {
+                    showToast('Enter a photo/video URL or choose a file for Showcase.');
+                    return;
+                }
+
+                storeData.showcase.push({
+                    id: Date.now(),
+                    caption,
+                    mediaType,
+                    mediaUrl: finalMedia,
+                    image: finalMedia
+                });
+
+                document.getElementById('new-showcase-caption').value = '';
+                document.getElementById('new-showcase-url').value = '';
+                fileInput.value = '';
+                saveStoreLocally();
+                showToast(`${mediaType === 'video' ? 'Video' : 'Photo'} added to GADELA Showcase!`);
+            } catch (err) {
+                showToast(err?.message || 'Could not process showcase media.');
             }
-
-            if (!finalMedia) {
-                showToast('Enter a photo/video URL or choose a file for Showcase.');
-                return;
-            }
-
-            storeData.showcase.push({
-                id: Date.now(),
-                caption,
-                mediaType,
-                mediaUrl: finalMedia,
-                image: finalMedia
-            });
-
-            document.getElementById('new-showcase-caption').value = '';
-            document.getElementById('new-showcase-url').value = '';
-            fileInput.value = '';
-            saveStoreLocally();
-            showToast(`${mediaType === 'video' ? 'Video' : 'Photo'} added to GADELA Showcase!`);
         }
 
         function removeShowcaseItem(id) {
@@ -2654,7 +2753,7 @@
                     row.className = 'flex items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 rounded-xl p-2.5';
                     row.innerHTML = `
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <img src="${item.image}" class="w-10 h-10 rounded-lg object-cover bg-zinc-950 shrink-0">
+                            <img src="${item.image}" class="w-10 h-10 rounded-lg object-cover bg-zinc-950 shrink-0" onerror="this.src='https://placehold.co/80x80/18181b/eab308?text=G'">
                             <div class="min-w-0">
                                 <p class="text-xs font-bold text-white truncate">${item.title}</p>
                                 <p class="text-[11px] text-zinc-400">${cat} ${item.price ? '• ' + item.price : ''}</p>
@@ -2679,7 +2778,7 @@
                 const isVideo = isVideoEntry(entry);
                 const thumbHtml = isVideo
                     ? `<div class="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center shrink-0 text-yellow-400"><i class="fa-solid fa-video text-xs"></i></div>`
-                    : `<img src="${src}" class="w-9 h-9 rounded-lg object-cover shrink-0">`;
+                    : `<img src="${src}" class="w-9 h-9 rounded-lg object-cover shrink-0" onerror="this.src='https://placehold.co/80x80/18181b/eab308?text=G'">`;
 
                 const card = document.createElement('div');
                 card.className = 'flex items-center justify-between gap-2 bg-zinc-950 border border-zinc-800 rounded-xl p-2';
