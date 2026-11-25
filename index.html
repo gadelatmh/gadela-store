@@ -7,7 +7,7 @@
     <title>GADELA | Money Hunter — Official Streetwear</title>
     <meta name="description" content="GADELA means Money Hunter in Ewé. Official streetwear collection: T-Shirts, Hoodies, Pants, and Shoes. Order directly via WhatsApp.">
     <meta name="keywords" content="GADELA, Money Hunter, Streetwear, T-Shirt, Hoodie, Pants, Shoe, Fashion">
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter & Syne for Streetwear Luxury Aesthetic -->
@@ -19,7 +19,7 @@
     <!-- QRCode Generator & Decoder Libraries for Scannable Receipts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -40,18 +40,18 @@
                     }
                 }
             }
-        }
+        };
     </script>
 </head>
 <body class="bg-brand-black text-zinc-100 font-sans antialiased selection:bg-yellow-500 selection:text-black min-h-screen flex flex-col">
 
-    <!-- Custom Notification Banner -->
+    <!-- ==================== 1. TOAST NOTIFICATION ==================== -->
     <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-zinc-900 border border-yellow-500/50 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm">
         <i class="fa-solid fa-circle-check text-yellow-400 text-lg"></i>
         <p id="toast-message" class="text-sm font-medium">Action completed.</p>
     </div>
 
-    <!-- ==================== CLOTHING ITEM QUICK-VIEW MODAL ==================== -->
+    <!-- ==================== 2. CLOTHING QUICK-VIEW MODAL ==================== -->
     <div id="product-view-modal" onclick="if(event.target===this) closeProductViewModal()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden my-auto flex flex-col">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800 bg-zinc-900/90">
@@ -65,12 +65,10 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5">
-                <!-- Full Product Image -->
                 <div class="aspect-[4/5] rounded-xl overflow-hidden bg-black border border-zinc-800 flex items-center justify-center">
                     <img id="pv-image" src="" alt="Product Preview" class="w-full h-full object-cover">
                 </div>
 
-                <!-- Product Details & Variant Selection -->
                 <div class="flex flex-col justify-between space-y-4">
                     <div class="space-y-3">
                         <div>
@@ -103,11 +101,9 @@
         </div>
     </div>
 
-    <!-- ==================== BLACK & RED OFFICIAL ORDER RECEIPT MODAL ==================== -->
+    <!-- ==================== 3. BLACK & RED RECEIPT IMAGE MODAL ==================== -->
     <div id="receipt-modal" onclick="if(event.target===this) closeReceiptModal()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-zinc-950 border-2 border-red-600/80 rounded-2xl w-full max-w-lg shadow-[0_0_50px_rgba(220,38,38,0.25)] overflow-hidden my-auto flex flex-col">
-            
-            <!-- Modal Header -->
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-red-900/60 bg-gradient-to-r from-black via-red-950/40 to-black">
                 <div class="flex items-center gap-2.5">
                     <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
@@ -120,41 +116,43 @@
                 </button>
             </div>
 
-            <!-- Generated Receipt Image Preview -->
             <div class="p-4 sm:p-5 bg-black flex flex-col items-center justify-center max-h-[62vh] overflow-y-auto">
                 <img id="receipt-preview-img" src="" alt="GADELA Official Order Receipt" class="w-full max-w-sm rounded-xl border border-red-600/50 shadow-2xl">
             </div>
 
-            <!-- Action Buttons to Send Receipt Image to WhatsApp DM -->
             <div class="p-4 sm:p-5 bg-zinc-950 border-t border-red-900/50 space-y-2.5">
                 <button type="button" onclick="shareReceiptImageToWhatsApp()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-sm py-3.5 px-5 rounded-xl transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-red-950/60 cursor-pointer">
                     <i class="fa-brands fa-whatsapp text-lg"></i>
                     <span id="share-receipt-btn-label">Send Receipt Image to +2347080713892 DM</span>
                 </button>
 
-                <div class="grid grid-cols-2 gap-2.5">
-                    <button type="button" onclick="downloadReceiptImage()" class="bg-zinc-900 hover:bg-zinc-800 border border-red-800/50 text-zinc-200 font-semibold text-xs py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="downloadReceiptImage()" class="bg-zinc-900 hover:bg-zinc-800 border border-red-800/50 text-zinc-200 font-semibold text-xs py-3 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                         <i class="fa-solid fa-download text-red-400"></i>
-                        <span>Save Receipt Image</span>
+                        <span>Save Image</span>
+                    </button>
+                    <button type="button" onclick="triggerNativeShareSheet()" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 font-semibold text-xs py-3 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-share-nodes text-yellow-400"></i>
+                        <span>Share File</span>
                     </button>
                     <a id="receipt-open-wa-direct"
                        href="https://wa.me/2347080713892"
                        target="_blank"
                        rel="noopener noreferrer"
-                       onclick="openSpecificWhatsAppDm(state.targetWhatsApp)"
-                       class="bg-zinc-900 hover:bg-zinc-800 border border-emerald-700/50 text-emerald-300 font-semibold text-xs py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
+                       onclick="event.preventDefault(); openSpecificWhatsAppDm(state.targetWhatsApp);"
+                       class="bg-zinc-900 hover:bg-zinc-800 border border-emerald-700/50 text-emerald-300 font-semibold text-xs py-3 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
                         <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-                        <span id="receipt-dm-btn-label">Open DM (+2347080713892)</span>
+                        <span id="receipt-dm-btn-label">Open DM</span>
                     </a>
                 </div>
                 <p id="receipt-helper-note" class="text-[11px] text-zinc-400 text-center leading-relaxed pt-0.5">
-                    Tip: If your phone opens WhatsApp without attaching the file automatically, tap <strong class="text-red-400">Save Receipt Image</strong> first, then tap <strong class="text-emerald-400">Open DM</strong> to go straight to the number's chat and attach it from your gallery.
+                    Tapping <strong class="text-red-400">Send Receipt Image</strong> saves the PNG receipt and opens that exact number's WhatsApp DM so you can attach it straight into the chat.
                 </p>
             </div>
         </div>
     </div>
 
-    <!-- ==================== SHOWCASE LIGHTBOX REVIEW MODAL ==================== -->
+    <!-- ==================== 4. SHOWCASE LIGHTBOX MODAL ==================== -->
     <div id="showcase-review-modal" onclick="if(event.target===this) closeShowcaseReview()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
         <div class="relative w-full max-w-3xl bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800 bg-zinc-900/90">
@@ -174,9 +172,7 @@
                     </button>
                 </div>
             </div>
-            <div id="review-modal-media-container" class="bg-black flex items-center justify-center max-h-[75vh] min-h-[280px] overflow-hidden">
-                <!-- Populated dynamically with full-size image or playable video -->
-            </div>
+            <div id="review-modal-media-container" class="bg-black flex items-center justify-center max-h-[75vh] min-h-[280px] overflow-hidden"></div>
             <div class="px-5 py-3 bg-zinc-900/60 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
                 <span id="review-modal-counter">1 / 1</span>
                 <span>GADELA — Money Hunter Lookbook</span>
@@ -184,11 +180,9 @@
         </div>
     </div>
 
-    <!-- ==================== OWNER ADMIN CONTROL MODAL ==================== -->
-    <div id="admin-modal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <!-- ==================== 5. OWNER ADMIN STUDIO MODAL ==================== -->
+    <div id="admin-modal" onclick="if(event.target===this) closeAdminModal()" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
-            
-            <!-- Modal Header -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/80">
                 <div class="flex items-center gap-2.5">
                     <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-pulse"></span>
@@ -196,12 +190,12 @@
                         GADELA Owner Studio
                     </h2>
                 </div>
-                <button onclick="closeAdminModal()" class="text-zinc-400 hover:text-white p-2 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer">
+                <button type="button" onclick="closeAdminModal()" class="text-zinc-400 hover:text-white p-2 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
-            <!-- Lock Screen (PIN Protected) -->
+            <!-- Lock Screen -->
             <div id="admin-lock-screen" class="p-8 text-center space-y-5">
                 <div class="w-14 h-14 rounded-2xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center mx-auto text-yellow-400 text-2xl">
                     <i class="fa-solid fa-lock"></i>
@@ -209,14 +203,14 @@
                 <div>
                     <h3 class="text-lg font-bold text-white">Owner Access Required</h3>
                     <p class="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
-                        Enter your Owner PIN to upload your Logo, add new T-Shirt/Hoodie/Pants/Shoe designs, scan receipts, or update the Showcase live on your site.
+                        Enter your Owner PIN to manage collections, update branding/showcase, scan receipts, or sync store data.
                     </p>
                 </div>
                 <div class="max-w-xs mx-auto space-y-3">
-                    <input type="password" id="admin-pin-input" placeholder="Enter PIN (Default: 2026)" 
+                    <input type="password" id="admin-pin-input" placeholder="Enter PIN (Default: 2026)"
                            onkeydown="if(event.key==='Enter') verifyAdminPin()"
                            class="w-full text-center tracking-widest bg-zinc-900 border border-zinc-700 focus:border-yellow-400 rounded-xl px-4 py-3 text-sm text-white outline-none">
-                    <button onclick="verifyAdminPin()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm py-3 rounded-xl transition-all cursor-pointer">
+                    <button type="button" onclick="verifyAdminPin()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm py-3 rounded-xl transition-all cursor-pointer">
                         Unlock Studio
                     </button>
                     <p id="pin-error-msg" class="text-xs text-red-400 hidden">Incorrect PIN. Try again (Default is 2026).</p>
@@ -225,24 +219,22 @@
 
             <!-- Unlocked Admin Dashboard -->
             <div id="admin-dashboard" class="hidden flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
-                
-                <!-- Admin Navigation Tabs -->
                 <div class="flex flex-wrap gap-2 border-b border-zinc-800 pb-3">
-                    <button onclick="switchAdminTab('collections')" id="admintab-collections" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-yellow-400 text-black cursor-pointer">
+                    <button type="button" onclick="switchAdminTab('collections')" id="admintab-collections" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-yellow-400 text-black cursor-pointer">
                         1. Manage Collections
                     </button>
-                    <button onclick="switchAdminTab('branding')" id="admintab-branding" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-zinc-900 text-zinc-300 border border-zinc-800 cursor-pointer">
+                    <button type="button" onclick="switchAdminTab('branding')" id="admintab-branding" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-zinc-900 text-zinc-300 border border-zinc-800 cursor-pointer">
                         2. Logo & Showcase
                     </button>
-                    <button onclick="switchAdminTab('scanner')" id="admintab-scanner" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600/20 text-red-300 border border-red-600/50 cursor-pointer">
+                    <button type="button" onclick="switchAdminTab('scanner')" id="admintab-scanner" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-zinc-900 text-zinc-300 border border-zinc-800 cursor-pointer">
                         3. Receipt Scanner & Pay
                     </button>
-                    <button onclick="switchAdminTab('publish')" id="admintab-publish" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-zinc-900 text-zinc-300 border border-zinc-800 cursor-pointer">
+                    <button type="button" onclick="switchAdminTab('publish')" id="admintab-publish" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-zinc-900 text-zinc-300 border border-zinc-800 cursor-pointer">
                         4. GitHub Live Sync & PIN
                     </button>
                 </div>
 
-                <!-- TAB 1: MANAGE COLLECTIONS -->
+                <!-- Tab 1: Manage Collections -->
                 <div id="admin-panel-collections" class="space-y-5">
                     <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 space-y-4">
                         <h4 class="text-sm font-bold text-white uppercase tracking-wider">Add New Item to Collection</h4>
@@ -277,12 +269,11 @@
                             </div>
                         </div>
 
-                        <button onclick="addCollectionItem()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-all cursor-pointer">
+                        <button type="button" onclick="addCollectionItem()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-all cursor-pointer">
                             <i class="fa-solid fa-plus mr-1.5"></i> Add Design to Store
                         </button>
                     </div>
 
-                    <!-- Current Items List -->
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Current Uploaded Designs</h4>
@@ -292,10 +283,10 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: LOGO & SHOWCASE PHOTOS/VIDEOS -->
+                <!-- Tab 2: Logo & Showcase -->
                 <div id="admin-panel-branding" class="hidden space-y-5">
                     <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 space-y-3">
-                        <h4 class="text-sm font-bold text-white uppercase tracking-wider">Update GADELA Brand Logo (Used on Header & Receipts)</h4>
+                        <h4 class="text-sm font-bold text-white uppercase tracking-wider">Update GADELA Brand Logo (Header & Receipts)</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] text-zinc-400 uppercase mb-1">Logo Image URL</label>
@@ -307,10 +298,10 @@
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="saveBrandLogo()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-pointer">
+                            <button type="button" onclick="saveBrandLogo()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-pointer">
                                 Save Logo
                             </button>
-                            <button onclick="clearBrandLogo()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold text-xs px-4 py-2.5 rounded-xl cursor-pointer">
+                            <button type="button" onclick="clearBrandLogo()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold text-xs px-4 py-2.5 rounded-xl cursor-pointer">
                                 Reset to Default Red & Black Logo
                             </button>
                         </div>
@@ -333,25 +324,23 @@
                             </div>
                         </div>
                         <p class="text-[11px] text-zinc-500">Tip: Short videos (under 8MB) can be uploaded directly from your phone/PC, or paste any hosted .mp4 video URL for GitHub live sync.</p>
-                        <button onclick="addShowcaseItem()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-pointer">
+                        <button type="button" onclick="addShowcaseItem()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-pointer">
                             <i class="fa-solid fa-plus mr-1.5"></i> Add Media to Showcase
                         </button>
                         <div id="admin-showcase-list" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2"></div>
                     </div>
                 </div>
 
-                <!-- TAB 3: RECEIPT QR SCANNER & PAYMENT CHECK -->
+                <!-- Tab 3: Receipt Scanner & Payment Check -->
                 <div id="admin-panel-scanner" class="hidden space-y-5">
                     <div class="bg-zinc-900/80 border border-red-700/50 rounded-xl p-4 space-y-4">
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <div>
-                                <h4 class="text-sm font-bold text-red-400 uppercase tracking-wider flex items-center gap-2">
-                                    <i class="fa-solid fa-qrcode"></i> Scan Receipt QR & Check Payment
-                                </h4>
-                                <p class="text-xs text-zinc-400 mt-0.5">
-                                    Upload or snap a receipt image, scan via camera, or paste a receipt code/link to check payment & repeat uses.
-                                </p>
-                            </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-red-400 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-qrcode"></i> Scan Receipt QR & Check Payment
+                            </h4>
+                            <p class="text-xs text-zinc-400 mt-0.5">
+                                Upload or snap a receipt image, scan via camera, or paste a receipt code/Order ID to check payment & repeat uses.
+                            </p>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -381,20 +370,18 @@
                             </div>
                         </div>
 
-                        <!-- Live Camera Preview Box -->
                         <div id="qr-camera-box" class="hidden bg-black border border-red-700/60 rounded-xl p-3 space-y-2">
                             <video id="qr-camera-video" playsinline class="w-full max-h-60 object-cover rounded-lg bg-black"></video>
                             <canvas id="qr-camera-canvas" class="hidden"></canvas>
                             <p id="qr-camera-status" class="text-[11px] text-red-300 text-center">Point camera at the receipt QR code...</p>
                         </div>
 
-                        <!-- Manual Paste / Order Lookup -->
                         <div class="space-y-2">
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400">
                                 Or Paste Receipt QR Text / Order ID
                             </label>
                             <div class="flex gap-2">
-                                <input type="text" id="manual-receipt-input" placeholder="Paste scanned QR text, link, or Order ID (e.g. GDL-123456)"
+                                <input type="text" id="manual-receipt-input" placeholder="Paste scanned QR text or Order ID (e.g. GDL-123456)"
                                        class="flex-1 bg-zinc-950 border border-zinc-800 focus:border-red-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none">
                                 <button type="button" onclick="processManualReceiptInput()"
                                         class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer">
@@ -403,14 +390,13 @@
                             </div>
                         </div>
 
-                        <!-- Scanned Receipt Result & Payment Controls -->
                         <div id="scanned-receipt-result" class="bg-black border border-zinc-800 rounded-xl p-4 space-y-3">
                             <p class="text-xs text-zinc-500 text-center">No receipt scanned yet. Scan a receipt image or enter an Order ID above to check payment status.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB 4: GITHUB LIVE SYNC & SECURITY -->
+                <!-- Tab 4: GitHub Live Sync & PIN -->
                 <div id="admin-panel-publish" class="hidden space-y-5">
                     <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 space-y-3">
                         <h4 class="text-sm font-bold text-yellow-400 uppercase tracking-wider flex items-center gap-2">
@@ -418,14 +404,14 @@
                         </h4>
                         <p class="text-xs text-zinc-300 leading-relaxed">
                             1. Add your photos/videos above using media links (for example, upload files to your GitHub repo or Cloudinary/ImgBB and paste the links).<br>
-                            2. Click <strong>"Copy Store Data JSON"</strong> below.<br>
-                            3. In your GitHub repository, paste that text into a file named <code class="text-yellow-300 bg-zinc-950 px-1.5 py-0.5 rounded">gadela-catalog.json</code>. Every visitor on Google will automatically see your new drops!
+                            2. Click <strong>"Copy Store Data JSON"</strong> or <strong>"Download gadela-catalog.json"</strong> below.<br>
+                            3. Upload/paste that into <code class="text-yellow-300 bg-zinc-950 px-1.5 py-0.5 rounded">gadela-catalog.json</code> in your GitHub repository.
                         </p>
                         <div class="flex flex-wrap gap-2.5 pt-1">
-                            <button onclick="exportCatalogJSON()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-pointer">
+                            <button type="button" onclick="exportCatalogJSON()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-pointer">
                                 <i class="fa-solid fa-copy mr-1.5"></i> Copy Store Data JSON
                             </button>
-                            <button onclick="downloadCatalogJSON()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl cursor-pointer">
+                            <button type="button" onclick="downloadCatalogJSON()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl cursor-pointer">
                                 <i class="fa-solid fa-download mr-1.5"></i> Download gadela-catalog.json
                             </button>
                         </div>
@@ -436,31 +422,27 @@
                         <h4 class="text-sm font-bold text-white uppercase tracking-wider">Change Owner PIN</h4>
                         <div class="flex gap-2 max-w-sm">
                             <input type="text" id="new-pin-input" placeholder="New 4-6 digit PIN" class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white outline-none">
-                            <button onclick="updateAdminPin()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs px-4 py-2 rounded-xl cursor-pointer">
+                            <button type="button" onclick="updateAdminPin()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs px-4 py-2 rounded-xl cursor-pointer">
                                 Update PIN
                             </button>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- Main Page Container -->
+    <!-- ==================== 6. MAIN PAGE CONTAINER ==================== -->
     <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
-        
-        <!-- ==================== TOP HEADER SECTION ==================== -->
+
+        <!-- Top Brand Header -->
         <header class="grid grid-cols-1 lg:grid-cols-12 gap-4 border border-zinc-800 bg-brand-card rounded-2xl p-4 sm:p-6 mb-6 shadow-xl">
-            
-            <!-- Left: Gadela Logo Box -->
             <div class="lg:col-span-3 flex items-center justify-center">
                 <div id="logo-slot" class="w-full h-28 sm:h-32 border border-red-900/50 rounded-xl flex flex-col items-center justify-center text-center p-2 transition-colors relative overflow-hidden group bg-black">
                     <img id="logo-preview" src="" alt="GADELA Logo" class="max-h-full max-w-full object-contain">
                 </div>
             </div>
 
-            <!-- Center: Brand Name & Sub-motto -->
             <div class="lg:col-span-5 flex flex-col items-center justify-center text-center border-y lg:border-y-0 lg:border-x border-zinc-800 py-4 lg:py-0 px-4">
                 <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-[0.2em] text-white uppercase">
                     GADELA
@@ -470,7 +452,6 @@
                 </p>
             </div>
 
-            <!-- Right: Brand Quote & Store Visitors Counter -->
             <div class="lg:col-span-4 flex flex-col items-center lg:items-end justify-center text-center lg:text-right px-2 gap-2.5">
                 <p class="text-sm sm:text-base text-zinc-300 font-medium leading-relaxed italic">
                     “We hunt money every day. That is why you need <span class="text-white font-bold not-italic">GADELA</span> in your life.”
@@ -483,13 +464,13 @@
             </div>
         </header>
 
-        <!-- ==================== MAIN BODY GRID ==================== -->
+        <!-- Main Body Columns -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            <!-- LEFT COLUMN: Multi-Select Collections, Contact, Showcase -->
+
+            <!-- Left Column: Collections, Direct WhatsApp Contact, Showcase -->
             <div class="lg:col-span-7 flex flex-col gap-6">
-                
-                <!-- 1. HOME / MULTI-SELECT CATALOG SECTION -->
+
+                <!-- Home / Multi-Select Collections -->
                 <section class="border border-zinc-800 bg-brand-card rounded-2xl p-5 sm:p-6 shadow-lg">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 pb-4 mb-5">
                         <div>
@@ -498,7 +479,7 @@
                                 Home — Collections
                             </h2>
                             <p class="text-xs text-zinc-400 mt-1">
-                                Pick your color & size, then tap any design to view it or add one or multiple pieces to your bag.
+                                Pick your color & size, then tap any design to view it before adding one or multiple pieces to your bag.
                             </p>
                         </div>
                         <span id="collection-status-badge" class="text-xs bg-zinc-900 border border-zinc-700 text-zinc-400 px-3 py-1.5 rounded-lg">
@@ -506,18 +487,18 @@
                         </span>
                     </div>
 
-                    <!-- Category Tabs (T-Shirt, Hoodie, Pants, Shoe) -->
+                    <!-- Category Tabs -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6" role="tablist">
-                        <button onclick="selectCategory('T-Shirt')" id="tab-T-Shirt" class="category-tab active-tab py-3 px-4 rounded-xl font-bold text-sm uppercase tracking-wider border transition-all bg-white text-black border-white shadow-md cursor-pointer">
+                        <button type="button" onclick="selectCategory('T-Shirt')" id="tab-T-Shirt" class="category-tab active-tab py-3 px-4 rounded-xl font-bold text-sm uppercase tracking-wider border transition-all bg-white text-black border-white shadow-md cursor-pointer">
                             T-Shirt
                         </button>
-                        <button onclick="selectCategory('Hoodie')" id="tab-Hoodie" class="category-tab py-3 px-4 rounded-xl font-bold text-sm uppercase tracking-wider border transition-all bg-zinc-900/80 text-zinc-300 border-zinc-800 hover:border-zinc-600 cursor-pointer">
+                        <button type="button" onclick="selectCategory('Hoodie')" id="tab-Hoodie" class="category-tab py-3 px-4 rounded-xl font-bold text-sm uppercase tracking-wider border transition-all bg-zinc-900/80 text-zinc-300 border-zinc-800 hover:border-zinc-600 cursor-pointer">
                             Hoodie
                         </button>
-                        <button onclick="selectCategory('Pants')" id="tab-Pants" class="category-tab py-3 px-4 rounded-xl font-bold text-sm uppercase tracking-wider border transition-all bg-zinc-900/80 text-zinc-300 border-zinc-800 hover:border-zinc-600 cursor-pointer">
+                        <button type="button" onclick="selectCategory('Pants')" id="tab-Pants" class="category-tab py-3 px-4 rounded-xl font-bold text-sm uppercase tracking-wider border transition-all bg-zinc-900/80 text-zinc-300 border-zinc-800 hover:border-zinc-600 cursor-pointer">
                             Pants
                         </button>
-                        <button onclick="selectCategory('Shoe')" id="tab-Shoe" class="category-tab py-3 px-4 rounded-xl font-bold text-sm uppercase tracking-wider border transition-all bg-zinc-900/80 text-zinc-300 border-zinc-800 hover:border-zinc-600 cursor-pointer">
+                        <button type="button" onclick="selectCategory('Shoe')" id="tab-Shoe" class="category-tab py-3 px-4 rounded-xl font-bold text-sm uppercase tracking-wider border transition-all bg-zinc-900/80 text-zinc-300 border-zinc-800 hover:border-zinc-600 cursor-pointer">
                             Shoe
                         </button>
                     </div>
@@ -530,23 +511,20 @@
                                 <h3 id="active-category-title" class="text-2xl font-display font-bold text-white mt-0.5">T-Shirt</h3>
                             </div>
 
-                            <!-- Available Colors Dynamic List -->
                             <div>
                                 <label class="block text-xs text-zinc-400 uppercase tracking-wider mb-2">Available Colors:</label>
                                 <div id="color-options-container" class="flex flex-wrap gap-2"></div>
                             </div>
                         </div>
 
-                        <!-- Size Selector -->
                         <div class="pb-4 border-b border-zinc-800/80">
                             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                                 <label id="size-label" class="block text-xs text-zinc-400 uppercase tracking-wider">Select Size (T-Shirt):</label>
-                                <span id="selected-summary-badge" class="text-xs font-medium text-yellow-400">T-Shirt • Black • L</span>
+                                <span id="selected-summary-badge" class="text-xs font-medium text-yellow-400">T-Shirt • Black • Size L</span>
                             </div>
                             <div id="size-options-container" class="flex flex-wrap gap-2"></div>
                         </div>
 
-                        <!-- Quick Add Current Piece Button -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-900/80 border border-zinc-800 rounded-xl p-3">
                             <div class="text-xs text-zinc-300">
                                 <span class="font-semibold text-white">Multi-Select Mode:</span> Add multiple items across T-Shirts, Hoodies, Pants, or Shoes.
@@ -557,7 +535,6 @@
                             </button>
                         </div>
 
-                        <!-- Dynamic Design Gallery Slots -->
                         <div class="pt-1">
                             <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                                 <span class="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
@@ -565,11 +542,9 @@
                                 </span>
                                 <span id="design-slot-helper" class="text-[11px] text-zinc-500">Tap any design to view details before adding</span>
                             </div>
-                            
                             <div id="design-slots-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                         </div>
 
-                        <!-- Selected Bag / Multiple Clothes List -->
                         <div class="pt-4 border-t border-zinc-800/80">
                             <div class="flex items-center justify-between mb-2.5">
                                 <h4 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
@@ -585,7 +560,7 @@
                     </div>
                 </section>
 
-                <!-- 2. CONTACT SECTION (Direct WhatsApp DM Links) -->
+                <!-- Contact Direct WhatsApp DM -->
                 <section class="border border-zinc-800 bg-brand-card rounded-2xl p-5 sm:p-6 shadow-lg">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
@@ -598,8 +573,8 @@
 
                         <div class="flex flex-wrap items-center gap-3">
                             <a id="contact-wa-primary"
-                               href="https://wa.me/2347080713892" 
-                               target="_blank" 
+                               href="https://wa.me/2347080713892"
+                               target="_blank"
                                rel="noopener noreferrer"
                                onclick="handleDirectInquiryClick(event, '2347080713892')"
                                class="inline-flex items-center gap-2.5 bg-emerald-600/15 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-semibold text-sm px-4 py-3 rounded-xl transition-all">
@@ -610,8 +585,8 @@
                             <span class="text-zinc-600 font-bold hidden sm:inline">/</span>
 
                             <a id="contact-wa-backup"
-                               href="https://wa.me/2349167187337" 
-                               target="_blank" 
+                               href="https://wa.me/2349167187337"
+                               target="_blank"
                                rel="noopener noreferrer"
                                onclick="handleDirectInquiryClick(event, '2349167187337')"
                                class="inline-flex items-center gap-2.5 bg-emerald-600/15 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-semibold text-sm px-4 py-3 rounded-xl transition-all">
@@ -622,7 +597,7 @@
                     </div>
                 </section>
 
-                <!-- 3. GADELA SHOWCASE SECTION -->
+                <!-- GADELA Showcase -->
                 <section class="border border-zinc-800 bg-brand-card rounded-2xl p-5 sm:p-6 shadow-lg flex-grow flex flex-col">
                     <div class="flex items-center justify-between border-b border-zinc-800 pb-3 mb-4">
                         <div>
@@ -640,10 +615,10 @@
                 </section>
             </div>
 
-            <!-- RIGHT COLUMN: Payment Mode Form & Brand Story -->
+            <!-- Right Column: Payment Mode & Brand Meaning -->
             <div class="lg:col-span-5 flex flex-col gap-6">
-                
-                <!-- 1. PAYMENT MODE / CUSTOMER ORDER RECEIPT SECTION -->
+
+                <!-- Payment Mode Section -->
                 <section class="border border-zinc-800 bg-brand-card rounded-2xl p-5 sm:p-6 shadow-lg">
                     <div class="border-b border-zinc-800 pb-3 mb-5">
                         <h2 class="text-xl font-bold tracking-wide text-white uppercase flex items-center gap-2">
@@ -654,7 +629,6 @@
                     </div>
 
                     <form id="order-form" onsubmit="submitOrderReceipt(event)" class="space-y-4">
-                        <!-- Selected Items Summary Box -->
                         <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 space-y-1.5">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] uppercase tracking-wider text-zinc-500">Selected Items</span>
@@ -665,7 +639,6 @@
                             </div>
                         </div>
 
-                        <!-- Customer Name -->
                         <div>
                             <label for="customer-name" class="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-1.5">
                                 Customer Name <span class="text-red-500">*</span>
@@ -674,7 +647,6 @@
                                    class="w-full bg-zinc-950 border border-zinc-800 focus:border-red-500 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors">
                         </div>
 
-                        <!-- Address for Delivery -->
                         <div>
                             <label for="delivery-address" class="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-1.5">
                                 Address for Delivery <span class="text-red-500">*</span>
@@ -683,7 +655,6 @@
                                       class="w-full bg-zinc-950 border border-zinc-800 focus:border-red-500 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors resize-none"></textarea>
                         </div>
 
-                        <!-- Phone Number -->
                         <div>
                             <label for="customer-phone" class="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-1.5">
                                 Phone Number <span class="text-red-500">*</span>
@@ -692,7 +663,6 @@
                                    class="w-full bg-zinc-950 border border-zinc-800 focus:border-red-500 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors">
                         </div>
 
-                        <!-- Delivery Fee Notice -->
                         <div class="bg-red-950/30 border border-red-600/40 rounded-xl p-3.5 flex items-start gap-3">
                             <i class="fa-solid fa-truck-fast text-red-400 mt-0.5"></i>
                             <p class="text-xs sm:text-sm text-red-200 font-medium">
@@ -700,7 +670,6 @@
                             </p>
                         </div>
 
-                        <!-- Generate Receipt Image & Send to WhatsApp DM Buttons -->
                         <div class="pt-1 space-y-2.5">
                             <button type="button"
                                     onclick="handleOrderReceiptAction('2347080713892')"
@@ -716,8 +685,7 @@
                             </button>
                         </div>
 
-                        <!-- Live Mini Black & Red Receipt Card Preview -->
-                        <div class="bg-black border border-red-700/60 rounded-xl p-3.5 mt-3 space-y-2.5 shadow-inner">
+                        <div class="bg-black border border-red-700/60 rounded-xl p-3.5 mt-3 space-y-2 shadow-inner">
                             <div class="flex items-center justify-between gap-2 border-b border-red-900/50 pb-2">
                                 <div class="flex items-center gap-2">
                                     <span class="w-2 h-2 rounded-full bg-red-500"></span>
@@ -736,13 +704,13 @@
                     </form>
                 </section>
 
-                <!-- 2. BRAND STORY & MEANING SECTION -->
+                <!-- Brand Meaning Section -->
                 <section class="border border-zinc-800 bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl p-6 shadow-lg flex-grow flex flex-col justify-center">
                     <div class="mb-3">
                         <span class="text-[11px] font-bold uppercase tracking-[0.25em] text-yellow-400">The Meaning</span>
                         <h2 class="font-display text-2xl font-bold text-white mt-1">Why GADELA?</h2>
                     </div>
-                    
+
                     <div class="space-y-4 text-sm sm:text-base text-zinc-300 leading-relaxed">
                         <p>
                             <strong class="text-white">GADELA</strong> means <span class="text-yellow-400 font-semibold">Money Hunter</span> in Ewé, a Togo local language. <strong class="text-white">GA</strong> means <em>Money</em> and <strong class="text-white">ADELA</strong> means <em>Hunter</em>. So the combination of <strong class="text-white">GA</strong> and <strong class="text-white">ADELA</strong> gives you <strong class="text-white">GADELA</strong>.
@@ -753,11 +721,10 @@
                     </div>
                 </section>
             </div>
-
         </main>
     </div>
 
-    <!-- Footer with Visitor Count & Discreet Owner Studio Trigger -->
+    <!-- ==================== 7. FOOTER ==================== -->
     <footer class="border-t border-zinc-900 py-5 px-4 text-center text-xs text-zinc-500 mt-6">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <p>&copy; <span id="year"></span> GADELA — Money Hunter. All Rights Reserved.</p>
@@ -766,7 +733,7 @@
                     <i class="fa-solid fa-eye text-yellow-400"></i>
                     <span>Visitors: <strong id="visitor-count-footer" class="text-zinc-200">0</strong></span>
                 </span>
-                <button onclick="openAdminModal()" class="text-zinc-600 hover:text-yellow-400 transition-colors inline-flex items-center gap-1.5 text-[11px] cursor-pointer">
+                <button type="button" onclick="openAdminModal()" class="text-zinc-600 hover:text-yellow-400 transition-colors inline-flex items-center gap-1.5 text-[11px] cursor-pointer">
                     <i class="fa-solid fa-sliders"></i>
                     <span>Owner Studio</span>
                 </button>
@@ -774,10 +741,11 @@
         </div>
     </footer>
 
-    <!-- Interactive Application, Multi-Select Store, Visitors & Black/Red Receipt Image Engine -->
+    <!-- ==================== 8. APPLICATION SCRIPT ==================== -->
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
+        // --- Storage Keys & Constants ---
         const STORAGE_KEY = 'gadela_store_v1';
         const PIN_STORAGE_KEY = 'gadela_owner_pin_v1';
         const RECEIPT_RECORDS_KEY = 'gadela_receipt_records_v1';
@@ -815,8 +783,6 @@
             },
             showcase: []
         };
-
-        let storeData = JSON.parse(JSON.stringify(defaultStoreData));
 
         const catalogConfig = {
             'T-Shirt': {
@@ -857,6 +823,8 @@
             }
         };
 
+        let storeData = JSON.parse(JSON.stringify(defaultStoreData));
+
         let state = {
             category: 'T-Shirt',
             color: 'Black',
@@ -868,7 +836,34 @@
             selectedItems: []
         };
 
-        // ==================== STORE VISITORS COUNTER ====================
+        // --- UI & Clipboard Helpers ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3500);
+        }
+
+        function copyTextSafe(text, successMsg) {
+            const helper = document.createElement('textarea');
+            helper.value = text;
+            helper.setAttribute('readonly', '');
+            helper.style.position = 'fixed';
+            helper.style.opacity = '0';
+            document.body.appendChild(helper);
+            helper.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg);
+            } catch (err) {
+                showToast('Please manually select and copy the text.');
+            }
+            document.body.removeChild(helper);
+        }
+
+        // --- Visitor Counter ---
         function updateVisitorBadges(count) {
             const formatted = Number(count || 0).toLocaleString();
             const h = document.getElementById('visitor-count-header');
@@ -889,27 +884,23 @@
             updateVisitorBadges(localCount);
 
             try {
-                const namespace = 'gadela-money-hunter-store';
-                const key = 'visits';
-                const res = await fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`);
+                const res = await fetch('https://api.counterapi.dev/v1/gadela-money-hunter-store/visits/up');
                 if (res.ok) {
                     const data = await res.json();
                     if (typeof data.count === 'number') {
-                        const finalCount = Math.max(data.count, localCount);
-                        updateVisitorBadges(finalCount);
+                        updateVisitorBadges(Math.max(data.count, localCount));
                     }
                 }
             } catch (e) {
-                // Keep local count when offline or blocked
+                // Offline / blocked fallback keeps local count
             }
         }
 
-        // ==================== DIRECT WHATSAPP DM HELPERS ====================
+        // --- Direct WhatsApp DM Navigation ---
         function getWhatsAppDmUrls(phoneNumber) {
             const cleanDigits = String(phoneNumber || '2347080713892').replace(/\D/g, '');
             return {
                 webUrl: `https://wa.me/${cleanDigits}`,
-                apiUrl: `https://api.whatsapp.com/send?phone=${cleanDigits}`,
                 appUrl: `whatsapp://send?phone=${cleanDigits}`
             };
         }
@@ -950,18 +941,12 @@
             const directWaBtn = document.getElementById('receipt-open-wa-direct');
             const dmBtnLabel = document.getElementById('receipt-dm-btn-label');
 
-            if (shareBtnLabel) {
-                shareBtnLabel.textContent = `Send Receipt Image to +${cleanDigits} DM`;
-            }
-            if (directWaBtn) {
-                directWaBtn.href = webUrl;
-            }
-            if (dmBtnLabel) {
-                dmBtnLabel.textContent = `Open DM (+${cleanDigits})`;
-            }
+            if (shareBtnLabel) shareBtnLabel.textContent = `Send Receipt Image to +${cleanDigits} DM`;
+            if (directWaBtn) directWaBtn.href = webUrl;
+            if (dmBtnLabel) dmBtnLabel.textContent = `Open DM (+${cleanDigits})`;
         }
 
-        // ==================== PRODUCT QUICK-VIEW & MULTI-SELECT BAG ====================
+        // --- Catalog, Quick-View & Bag Management ---
         function buildItemKey(category, designTitle, color, size) {
             return `${category}|${designTitle || ''}|${color}|${size}`;
         }
@@ -1138,7 +1123,6 @@
 
             const totalQty = state.selectedItems.reduce((sum, item) => sum + item.qty, 0);
             countBadge.textContent = String(totalQty);
-
             container.innerHTML = '';
 
             if (state.selectedItems.length === 0) {
@@ -1151,10 +1135,7 @@
             }
 
             state.selectedItems.forEach(item => {
-                const label = item.designTitle
-                    ? `${item.category} — ${item.designTitle}`
-                    : item.category;
-
+                const label = item.designTitle ? `${item.category} — ${item.designTitle}` : item.category;
                 const row = document.createElement('div');
                 row.className = 'flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2';
                 row.innerHTML = `
@@ -1178,7 +1159,7 @@
             });
         }
 
-        // ==================== STORE DATA & CATALOG LOADING ====================
+        // --- Store Persistence & Rendering ---
         async function initializeStoreData() {
             try {
                 const savedLocal = localStorage.getItem(STORAGE_KEY);
@@ -1240,8 +1221,9 @@
 
         function renderLogo() {
             const preview = document.getElementById('logo-preview');
-            if (!preview) return;
-            preview.src = storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO;
+            if (preview) {
+                preview.src = storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO;
+            }
         }
 
         function renderDesignSlots() {
@@ -1274,7 +1256,6 @@
                 const card = document.createElement('button');
                 card.type = 'button';
                 card.onclick = () => openProductViewModal(item);
-
                 card.className = `aspect-[4/5] rounded-xl border-2 overflow-hidden relative group flex flex-col justify-end text-left transition-all cursor-pointer ${
                     totalSelectedForDesign > 0
                         ? 'border-yellow-400 ring-2 ring-yellow-400/30'
@@ -1308,6 +1289,7 @@
             }
         }
 
+        // --- Showcase ---
         function isVideoEntry(entry) {
             if (!entry) return false;
             if (entry.mediaType === 'video') return true;
@@ -1333,13 +1315,9 @@
             counterEl.textContent = `${currentReviewIndex + 1} of ${list.length}`;
 
             if (isVideoEntry(entry)) {
-                mediaContainer.innerHTML = `
-                    <video src="${src}" controls autoplay playsinline class="max-h-[75vh] w-full object-contain bg-black"></video>
-                `;
+                mediaContainer.innerHTML = `<video src="${src}" controls autoplay playsinline class="max-h-[75vh] w-full object-contain bg-black"></video>`;
             } else {
-                mediaContainer.innerHTML = `
-                    <img src="${src}" alt="${entry.caption || 'GADELA Showcase'}" class="max-h-[75vh] w-full object-contain bg-black" onerror="this.src='https://placehold.co/800x800/18181b/eab308?text=GADELA'">
-                `;
+                mediaContainer.innerHTML = `<img src="${src}" alt="${entry.caption || 'GADELA Showcase'}" class="max-h-[75vh] w-full object-contain bg-black" onerror="this.src='https://placehold.co/800x800/18181b/eab308?text=GADELA'">`;
             }
 
             modal.classList.remove('hidden');
@@ -1414,12 +1392,12 @@
             }
         }
 
+        // --- Category, Color & Size Selectors ---
         function selectCategory(category) {
             state.category = category;
             const catConfig = catalogConfig[category];
 
-            const colorExists = catConfig.colors.some(c => c.name === state.color);
-            if (!colorExists) {
+            if (!catConfig.colors.some(c => c.name === state.color)) {
                 state.color = catConfig.colors[0].name;
             }
 
@@ -1459,13 +1437,11 @@
                     renderDesignSlots();
                     updateSummaryDisplay();
                 };
-
                 btn.className = `flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                    isSelected 
-                    ? 'bg-zinc-800 border-yellow-400 text-white shadow-sm' 
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-600'
+                    isSelected
+                        ? 'bg-zinc-800 border-yellow-400 text-white shadow-sm'
+                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-600'
                 }`;
-
                 btn.innerHTML = `
                     <span class="w-3.5 h-3.5 rounded-full inline-block" style="background-color: ${colorObj.hex}; border: 1px solid ${colorObj.border};"></span>
                     <span>${colorObj.name}</span>
@@ -1488,11 +1464,10 @@
                     renderDesignSlots();
                     updateSummaryDisplay();
                 };
-
                 btn.className = `px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                    isSelected 
-                    ? 'bg-yellow-400 text-black border-yellow-400 shadow-sm' 
-                    : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:border-zinc-600'
+                    isSelected
+                        ? 'bg-yellow-400 text-black border-yellow-400 shadow-sm'
+                        : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:border-zinc-600'
                 }`;
                 btn.textContent = sizeVal;
                 container.appendChild(btn);
@@ -1535,7 +1510,7 @@
             }
         }
 
-        // ==================== RECEIPT PAYMENT & REPEAT-USE RECORDS ====================
+        // --- Receipt Payment & Repeat-Use Records ---
         function loadReceiptRecords() {
             try {
                 const raw = localStorage.getItem(RECEIPT_RECORDS_KEY);
@@ -1575,7 +1550,7 @@
             return existing;
         }
 
-        // ==================== BLACK & RED OFFICIAL RECEIPT IMAGE GENERATOR ====================
+        // --- Black & Red Receipt Image & Scannable QR Generator ---
         function loadImageForCanvas(src) {
             return new Promise((resolve) => {
                 if (!src) {
@@ -1636,14 +1611,13 @@
                 document.body.appendChild(tempDiv);
 
                 try {
-                    // High-contrast white QR modules on solid black background for reliable camera/scanner detection
                     new QRCode(tempDiv, {
-                        text: qrPayloadText,
-                        width: 240,
-                        height: 240,
+                        text: String(qrPayloadText || '').slice(0, 260),
+                        width: 320,
+                        height: 320,
                         colorDark: '#ffffff',
                         colorLight: '#000000',
-                        correctLevel: QRCode.CorrectLevel.H
+                        correctLevel: QRCode.CorrectLevel.M
                     });
 
                     setTimeout(() => {
@@ -1659,7 +1633,7 @@
                         if (tempDiv.parentNode) {
                             tempDiv.parentNode.removeChild(tempDiv);
                         }
-                    }, 60);
+                    }, 80);
                 } catch (err) {
                     if (tempDiv.parentNode) {
                         tempDiv.parentNode.removeChild(tempDiv);
@@ -1689,12 +1663,12 @@
                 });
             });
 
-            mCtx.font = '600 24px Inter, Arial, sans-serif';
+            mCtx.font = '600 20px Inter, Arial, sans-serif';
             const addressLines = wrapCanvasLines(mCtx, orderData.deliveryAddress || 'Not provided', 530);
 
-            const itemsSectionHeight = Math.max(130, wrappedItemBlocks.reduce((acc, b) => acc + (b.mainLines.length * 32) + 54, 40));
-            const customerSectionHeight = Math.max(185, 115 + (addressLines.length * 30));
-            const qrSectionHeight = 235;
+            const itemsSectionHeight = Math.max(130, wrappedItemBlocks.reduce((acc, b) => acc + (b.mainLines.length * 30) + 36, 56));
+            const customerSectionHeight = Math.max(175, 112 + (addressLines.length * 28));
+            const qrSectionHeight = 220;
             const height = 430 + itemsSectionHeight + customerSectionHeight + qrSectionHeight;
 
             const canvas = document.createElement('canvas');
@@ -1702,30 +1676,28 @@
             canvas.height = height;
             const ctx = canvas.getContext('2d');
 
-            // Deep Black Background
+            // Black Background + Crimson Glow
             ctx.fillStyle = '#070709';
             ctx.fillRect(0, 0, width, height);
 
-            // Subtle Crimson Radial Glow
             const glow = ctx.createRadialGradient(width / 2, 160, 40, width / 2, 160, 480);
             glow.addColorStop(0, 'rgba(220, 38, 38, 0.24)');
             glow.addColorStop(1, 'rgba(7, 7, 9, 0)');
             ctx.fillStyle = glow;
             ctx.fillRect(0, 0, width, height);
 
-            // Outer Crimson Border Frame
+            // Outer & Inner Red Borders
             ctx.strokeStyle = '#dc2626';
             ctx.lineWidth = 6;
             drawRoundedRect(ctx, 24, 24, width - 48, height - 48, 28);
             ctx.stroke();
 
-            // Inner Dark Red Accent Border
             ctx.strokeStyle = 'rgba(239, 68, 68, 0.35)';
             ctx.lineWidth = 2;
             drawRoundedRect(ctx, 36, 36, width - 72, height - 72, 22);
             ctx.stroke();
 
-            // Top Crimson Banner Strip
+            // Top Banner
             ctx.fillStyle = '#991b1b';
             drawRoundedRect(ctx, 56, 56, width - 112, 46, 12);
             ctx.fill();
@@ -1735,7 +1707,7 @@
             ctx.textAlign = 'center';
             ctx.fillText('OFFICIAL ORDER RECEIPT  •  DIRECT WHATSAPP DM', width / 2, 85);
 
-            // Red & Black GADELA Logo Box on Left
+            // Red & Black GADELA Logo Box
             const logoBoxX = 64;
             const logoBoxY = 126;
             const logoBoxSize = 156;
@@ -1746,8 +1718,7 @@
             ctx.lineWidth = 3;
             ctx.stroke();
 
-            const logoSrc = storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO;
-            const logoImg = await loadImageForCanvas(logoSrc);
+            const logoImg = await loadImageForCanvas(storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO);
             if (logoImg) {
                 const pad = 12;
                 const maxW = logoBoxSize - pad * 2;
@@ -1760,7 +1731,7 @@
                 ctx.drawImage(logoImg, drawX, drawY, drawW, drawH);
             }
 
-            // Brand Title & Motto on Right of Logo
+            // Brand Title & Metadata
             ctx.textAlign = 'left';
             ctx.fillStyle = '#ffffff';
             ctx.font = '900 54px Syne, Arial, sans-serif';
@@ -1774,7 +1745,6 @@
             ctx.font = '500 16px Inter, Arial, sans-serif';
             ctx.fillText(`Order ID: ${orderData.orderId}   |   ${orderData.timestamp}`, 246, 248);
 
-            // Red Divider Line
             ctx.strokeStyle = '#dc2626';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -1782,7 +1752,7 @@
             ctx.lineTo(width - 64, 304);
             ctx.stroke();
 
-            // Ordered Items Card (Black with Crimson Left Bar)
+            // Ordered Items Section
             const itemsBoxY = 328;
             ctx.fillStyle = '#110708';
             drawRoundedRect(ctx, 64, itemsBoxY, width - 128, itemsSectionHeight, 18);
@@ -1813,7 +1783,7 @@
                 cursorY += 36;
             });
 
-            // Customer & Delivery Details Card
+            // Customer & Delivery Details Section
             const custBoxY = itemsBoxY + itemsSectionHeight + 22;
             ctx.fillStyle = '#110708';
             drawRoundedRect(ctx, 64, custBoxY, width - 128, customerSectionHeight, 18);
@@ -1851,28 +1821,45 @@
             ctx.fillText('Address:', 92, infoY);
             ctx.fillStyle = '#ffffff';
             ctx.font = '600 20px Inter, Arial, sans-serif';
-            addressLines.forEach((line, idx) => {
-                ctx.fillText(line, 240, infoY + (idx * 28));
+            addressLines.forEach(line => {
+                ctx.fillText(line, 240, infoY);
+                infoY += 28;
             });
 
-            // Scannable White QR Code & Repeat-Payment Verification Box
+            // QR Code & Verification Section
             const scanY = custBoxY + customerSectionHeight + 22;
-            ctx.fillStyle = '#140607';
+            ctx.fillStyle = '#110708';
             drawRoundedRect(ctx, 64, scanY, width - 128, qrSectionHeight, 18);
             ctx.fill();
-            ctx.strokeStyle = '#dc2626';
-            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.65)';
+            ctx.lineWidth = 2;
             ctx.stroke();
 
-            const qrPayload = JSON.stringify({
-                brand: 'GADELA',
-                orderId: orderData.orderId,
-                date: orderData.timestamp,
-                customer: orderData.customerName,
-                phone: orderData.customerPhone,
-                address: orderData.deliveryAddress,
-                items: orderData.items
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(64, scanY + 14, 8, qrSectionHeight - 28);
+
+            const compactItems = (orderData.items || []).map(i => ({
+                c: i.category,
+                t: i.designTitle || '',
+                cl: i.color,
+                s: i.size,
+                q: i.qty
+            }));
+            let qrPayload = JSON.stringify({
+                id: orderData.orderId,
+                n: orderData.customerName,
+                p: orderData.customerPhone,
+                a: orderData.deliveryAddress,
+                items: compactItems
             });
+            if (qrPayload.length > 250) {
+                qrPayload = JSON.stringify({
+                    id: orderData.orderId,
+                    n: orderData.customerName,
+                    p: orderData.customerPhone,
+                    q: orderData.totalQty
+                });
+            }
             const qrSource = await generateOrderQrCanvas(qrPayload);
 
             const qrBoxSize = 178;
@@ -1886,7 +1873,6 @@
             ctx.stroke();
 
             if (qrSource) {
-                // Keep a clean black quiet zone around the white QR modules for fast scanning
                 ctx.drawImage(qrSource, qrX + 14, qrY + 14, qrBoxSize - 28, qrBoxSize - 28);
             }
 
@@ -1912,7 +1898,7 @@
                 scanLineY += 22;
             });
 
-            // Footer Notice Bar
+            // Footer Bar
             const footerY = scanY + qrSectionHeight + 22;
             ctx.fillStyle = '#ef4444';
             ctx.font = 'bold 20px Inter, Arial, sans-serif';
@@ -1992,11 +1978,9 @@
             state.latestReceiptBlob = blob;
             state.latestReceiptFilename = `GADELA-Receipt-${orderId}.png`;
 
-            const previewImg = document.getElementById('receipt-preview-img');
-            previewImg.src = dataUrl;
-
+            document.getElementById('receipt-preview-img').src = dataUrl;
             document.getElementById('receipt-modal').classList.remove('hidden');
-            showToast('Receipt image ready! Tap to send to WhatsApp DM.');
+            showToast('Receipt image ready!');
         }
 
         function submitOrderReceipt(event) {
@@ -2022,6 +2006,29 @@
             showToast('Receipt image saved to your device!');
         }
 
+        async function triggerNativeShareSheet() {
+            if (!state.latestReceiptBlob) {
+                showToast('Generate a receipt image first.');
+                return;
+            }
+            const file = new File([state.latestReceiptBlob], state.latestReceiptFilename, { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] }) && typeof navigator.share === 'function') {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'GADELA Official Order Receipt'
+                    });
+                } catch (err) {
+                    if (err && err.name !== 'AbortError') {
+                        downloadReceiptImage();
+                    }
+                }
+            } else {
+                downloadReceiptImage();
+                showToast('Share sheet not supported here; receipt image saved.');
+            }
+        }
+
         async function shareReceiptImageToWhatsApp() {
             if (!state.latestReceiptBlob) {
                 showToast('Generate a receipt image first.');
@@ -2029,31 +2036,20 @@
             }
 
             const cleanDigits = String(state.targetWhatsApp || '2347080713892').replace(/\D/g, '');
-            const file = new File([state.latestReceiptBlob], state.latestReceiptFilename, { type: 'image/png' });
+            const link = document.createElement('a');
+            link.href = state.latestReceiptDataUrl;
+            link.download = state.latestReceiptFilename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
 
-            if (navigator.canShare && navigator.canShare({ files: [file] }) && typeof navigator.share === 'function') {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: 'GADELA Official Order Receipt'
-                    });
-                    showToast(`Receipt image shared! Send it to +${cleanDigits} DM.`);
-                    return;
-                } catch (err) {
-                    if (err && err.name === 'AbortError') {
-                        return;
-                    }
-                }
-            }
-
-            downloadReceiptImage();
-            showToast(`Receipt downloaded! Opening +${cleanDigits} WhatsApp DM...`);
+            showToast(`Receipt saved! Opening +${cleanDigits} WhatsApp DM...`);
             setTimeout(() => {
                 openSpecificWhatsAppDm(cleanDigits);
             }, 350);
         }
 
-        // ==================== OWNER STUDIO RECEIPT SCANNER & PAYMENT TRACKER ====================
+        // --- Owner Studio: Scanner, Payment & Repeat-Use Tracker ---
         let activeScannedOrder = null;
         let qrCameraStream = null;
         let qrCameraRafId = null;
@@ -2064,25 +2060,28 @@
 
             try {
                 const parsed = JSON.parse(trimmed);
-                if (parsed && (parsed.orderId || parsed.items)) {
-                    return parsed;
+                if (parsed && (parsed.orderId || parsed.id || parsed.items || parsed.q)) {
+                    const normalizedItems = Array.isArray(parsed.items)
+                        ? parsed.items.map(it => ({
+                            category: it.category || it.c || 'Item',
+                            designTitle: it.designTitle || it.t || '',
+                            price: it.price || '',
+                            color: it.color || it.cl || 'Black',
+                            size: it.size || it.s || 'L',
+                            qty: it.qty || it.q || 1
+                        }))
+                        : [];
+                    return {
+                        orderId: parsed.orderId || parsed.id || 'GDL-UNKNOWN',
+                        timestamp: parsed.timestamp || parsed.date || 'Scanned QR',
+                        customerName: parsed.customerName || parsed.n || 'Customer on Receipt',
+                        customerPhone: parsed.customerPhone || parsed.p || '—',
+                        deliveryAddress: parsed.deliveryAddress || parsed.a || '—',
+                        items: normalizedItems
+                    };
                 }
             } catch (e) {
-                // Not raw JSON, try URL query ?receipt=
-            }
-
-            try {
-                const urlObj = new URL(trimmed);
-                const encoded = urlObj.searchParams.get('receipt');
-                if (encoded) {
-                    const decoded = decodeURIComponent(escape(atob(encoded)));
-                    const parsed = JSON.parse(decoded);
-                    if (parsed && (parsed.orderId || parsed.items)) {
-                        return parsed;
-                    }
-                }
-            } catch (e) {
-                // Not a receipt URL
+                // Not raw JSON
             }
 
             const records = loadReceiptRecords();
@@ -2258,8 +2257,7 @@
                     const decoded = decodeQrFromImageElement(img);
                     if (decoded) {
                         document.getElementById('manual-receipt-input').value = decoded;
-                        const parsed = parseReceiptPayload(decoded);
-                        renderScannedReceiptPanel(parsed);
+                        renderScannedReceiptPanel(parseReceiptPayload(decoded));
                         showToast('Receipt QR code scanned!');
                     } else {
                         showToast('Could not read QR code in that image. Try a clearer photo or paste Order ID.');
@@ -2276,8 +2274,7 @@
                 showToast('Paste a receipt QR code or Order ID first.');
                 return;
             }
-            const parsed = parseReceiptPayload(val);
-            renderScannedReceiptPanel(parsed);
+            renderScannedReceiptPanel(parseReceiptPayload(val));
         }
 
         async function startLiveQrCamera() {
@@ -2341,33 +2338,7 @@
             if (box) box.classList.add('hidden');
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast-notification');
-            document.getElementById('toast-message').textContent = msg;
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3500);
-        }
-
-        function copyTextSafe(text, successMsg) {
-            const helper = document.createElement('textarea');
-            helper.value = text;
-            helper.setAttribute('readonly', '');
-            helper.style.position = 'fixed';
-            helper.style.opacity = '0';
-            document.body.appendChild(helper);
-            helper.select();
-            try {
-                document.execCommand('copy');
-                showToast(successMsg);
-            } catch (err) {
-                showToast('Please manually select and copy the text.');
-            }
-            document.body.removeChild(helper);
-        }
-
-        // ==================== OWNER STUDIO / ADMIN FUNCTIONS ====================
+        // --- Owner Studio: Auth, Tabs, Catalog, Branding & Sync ---
         function openAdminModal() {
             document.getElementById('admin-modal').classList.remove('hidden');
             document.getElementById('admin-pin-input').focus();
@@ -2597,7 +2568,7 @@
                                 <p class="text-[11px] text-zinc-400">${cat} ${item.price ? '• ' + item.price : ''}</p>
                             </div>
                         </div>
-                        <button onclick="removeCollectionItem('${cat}', ${item.id})" class="text-zinc-500 hover:text-red-400 p-2 cursor-pointer" title="Delete">
+                        <button type="button" onclick="removeCollectionItem('${cat}', ${item.id})" class="text-zinc-500 hover:text-red-400 p-2 cursor-pointer" title="Delete">
                             <i class="fa-solid fa-trash-can text-xs"></i>
                         </button>
                     `;
@@ -2625,7 +2596,7 @@
                         ${thumbHtml}
                         <span class="text-xs text-zinc-300 truncate">${entry.caption}</span>
                     </div>
-                    <button onclick="removeShowcaseItem(${entry.id})" class="text-zinc-500 hover:text-red-400 p-1.5 cursor-pointer">
+                    <button type="button" onclick="removeShowcaseItem(${entry.id})" class="text-zinc-500 hover:text-red-400 p-1.5 cursor-pointer">
                         <i class="fa-solid fa-trash-can text-xs"></i>
                     </button>
                 `;
@@ -2667,6 +2638,7 @@
             showToast('Owner PIN updated successfully!');
         }
 
+        // --- App Startup ---
         window.addEventListener('DOMContentLoaded', () => {
             trackStoreVisitor();
             initializeStoreData();
