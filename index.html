@@ -16,8 +16,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome for WhatsApp & UI Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QRCode Generator Library for Scannable Order Receipts -->
+    <!-- QRCode Generator & Decoder Libraries for Scannable Receipts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -233,8 +234,11 @@
                     <button onclick="switchAdminTab('branding')" id="admintab-branding" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-zinc-900 text-zinc-300 border border-zinc-800 cursor-pointer">
                         2. Logo & Showcase
                     </button>
+                    <button onclick="switchAdminTab('scanner')" id="admintab-scanner" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600/20 text-red-300 border border-red-600/50 cursor-pointer">
+                        3. Receipt Scanner & Pay
+                    </button>
                     <button onclick="switchAdminTab('publish')" id="admintab-publish" class="admin-tab px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-zinc-900 text-zinc-300 border border-zinc-800 cursor-pointer">
-                        3. GitHub Live Sync & PIN
+                        4. GitHub Live Sync & PIN
                     </button>
                 </div>
 
@@ -336,7 +340,77 @@
                     </div>
                 </div>
 
-                <!-- TAB 3: GITHUB LIVE SYNC & SECURITY -->
+                <!-- TAB 3: RECEIPT QR SCANNER & PAYMENT CHECK -->
+                <div id="admin-panel-scanner" class="hidden space-y-5">
+                    <div class="bg-zinc-900/80 border border-red-700/50 rounded-xl p-4 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <h4 class="text-sm font-bold text-red-400 uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-qrcode"></i> Scan Receipt QR & Check Payment
+                                </h4>
+                                <p class="text-xs text-zinc-400 mt-0.5">
+                                    Upload or snap a receipt image, scan via camera, or paste a receipt code/link to check payment & repeat uses.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 space-y-2">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-300">
+                                    Upload Receipt Image to Scan QR
+                                </label>
+                                <input type="file" id="scanner-file-input" accept="image/*" onchange="handleReceiptImageScan(event)"
+                                       class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-500 cursor-pointer">
+                            </div>
+
+                            <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 flex flex-col justify-between gap-2">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-300">
+                                    Live Phone / Webcam QR Scan
+                                </span>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="startLiveQrCamera()" id="start-camera-btn"
+                                            class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2 px-3 rounded-lg cursor-pointer inline-flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-camera"></i>
+                                        <span>Start Camera</span>
+                                    </button>
+                                    <button type="button" onclick="stopLiveQrCamera()" id="stop-camera-btn"
+                                            class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs py-2 px-3 rounded-lg cursor-pointer">
+                                        Stop
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Camera Preview Box -->
+                        <div id="qr-camera-box" class="hidden bg-black border border-red-700/60 rounded-xl p-3 space-y-2">
+                            <video id="qr-camera-video" playsinline class="w-full max-h-60 object-cover rounded-lg bg-black"></video>
+                            <canvas id="qr-camera-canvas" class="hidden"></canvas>
+                            <p id="qr-camera-status" class="text-[11px] text-red-300 text-center">Point camera at the receipt QR code...</p>
+                        </div>
+
+                        <!-- Manual Paste / Order Lookup -->
+                        <div class="space-y-2">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                                Or Paste Receipt QR Text / Order ID
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" id="manual-receipt-input" placeholder="Paste scanned QR text, link, or Order ID (e.g. GDL-123456)"
+                                       class="flex-1 bg-zinc-950 border border-zinc-800 focus:border-red-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none">
+                                <button type="button" onclick="processManualReceiptInput()"
+                                        class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer">
+                                    Check
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Scanned Receipt Result & Payment Controls -->
+                        <div id="scanned-receipt-result" class="bg-black border border-zinc-800 rounded-xl p-4 space-y-3">
+                            <p class="text-xs text-zinc-500 text-center">No receipt scanned yet. Scan a receipt image or enter an Order ID above to check payment status.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: GITHUB LIVE SYNC & SECURITY -->
                 <div id="admin-panel-publish" class="hidden space-y-5">
                     <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl p-4 space-y-3">
                         <h4 class="text-sm font-bold text-yellow-400 uppercase tracking-wider flex items-center gap-2">
@@ -706,6 +780,7 @@
 
         const STORAGE_KEY = 'gadela_store_v1';
         const PIN_STORAGE_KEY = 'gadela_owner_pin_v1';
+        const RECEIPT_RECORDS_KEY = 'gadela_receipt_records_v1';
         const REMOTE_CATALOG_FILE = 'gadela-catalog.json';
 
         // Default Red & Black GADELA Artwork Emblem (Embedded SVG Data URI matching the red & black GADELA mask/tongue/eyes drawing)
@@ -1480,759 +1555,32 @@
                 document.body.appendChild(tempDiv);
 
                 try {
+                    // High-contrast white QR modules on solid black background for reliable camera/scanner detection
                     new QRCode(tempDiv, {
                         text: qrPayloadText,
                         width: 240,
                         height: 240,
-                        colorDark: '#ef4444',
-                        colorLight: '#050505',
-                        correctLevel: QRCode.CorrectLevel.M
+                        colorDark: '#ffffff',
+                        colorLight: '#000000',
+                        correctLevel: QRCode.CorrectLevel.H
                     });
 
                     setTimeout(() => {
-                        const qrCanvas = tempDiv.querySelector('canvas');
-                        const qrImg = tempDiv.querySelector('img');
-                        if (qrCanvas) {
-                            document.body.removeChild(tempDiv);
-                            resolve(qrCanvas);
-                        } else if (qrImg && qrImg.src) {
-                            const img = new Image();
-                            img.onload = () => {
-                                document.body.removeChild(tempDiv);
-                                resolve(img);
-                            };
-                            img.onerror = () => {
-                                document.body.removeChild(tempDiv);
-                                resolve(null);
-                            };
-                            img.src = qrImg.src;
-                        } else {
-                            document.body.removeChild(tempDiv);
-                            resolve(null);
-                        }
-                    }, 60);
-                } catch (e) {
-                    if (tempDiv.parentNode) document.body.removeChild(tempDiv);
-                    resolve(null);
-                }
-            });
-        }
-
-        async function generateBlackRedReceiptImage() {
-            const name = document.getElementById('customer-name').value.trim() || 'Valued Customer';
-            const address = document.getElementById('delivery-address').value.trim() || 'Delivery Address Pending';
-            const phone = document.getElementById('customer-phone').value.trim() || 'Not Provided';
-            const items = getEffectiveOrderItems();
-            const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
-
-            const orderNumber = 'GDL-' + Math.floor(100000 + Math.random() * 900000);
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' +
-                            now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-            const compactItems = items.map(it => `${it.category}${it.designTitle ? '(' + it.designTitle + ')' : ''}[${it.color}/${it.size}]x${it.qty}`).join('; ');
-            const qrPayload = `GADELA ORDER ${orderNumber}\nName: ${name}\nPhone: ${phone}\nAddr: ${address}\nItems: ${compactItems}`;
-
-            let [logoImg, qrSource] = await Promise.all([
-                loadImageForCanvas(storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO),
-                generateOrderQrCanvas(qrPayload)
-            ]);
-            if (!logoImg) {
-                logoImg = await loadImageForCanvas(DEFAULT_GADELA_RED_BLACK_LOGO);
-            }
-
-            const width = 900;
-            const measureCanvas = document.createElement('canvas');
-            const mCtx = measureCanvas.getContext('2d');
-            mCtx.font = '600 24px Inter, sans-serif';
-            const addressLines = wrapCanvasLines(mCtx, address, 690);
-
-            const itemsBlockHeight = Math.max(120, items.length * 88 + 30);
-            const customerBlockHeight = 205 + (addressLines.length * 32);
-            const scanBlockHeight = 220;
-            const totalHeight = 520 + itemsBlockHeight + customerBlockHeight + scanBlockHeight + 165;
-
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = totalHeight;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = '#050505';
-            ctx.fillRect(0, 0, width, totalHeight);
-
-            const topGlow = ctx.createRadialGradient(width / 2, 170, 20, width / 2, 170, 420);
-            topGlow.addColorStop(0, 'rgba(220, 38, 38, 0.28)');
-            topGlow.addColorStop(1, 'rgba(5, 5, 5, 0)');
-            ctx.fillStyle = topGlow;
-            ctx.fillRect(0, 0, width, 540);
-
-            ctx.strokeStyle = '#dc2626';
-            ctx.lineWidth = 6;
-            drawRoundedRect(ctx, 24, 24, width - 48, totalHeight - 48, 28);
-            ctx.stroke();
-
-            ctx.strokeStyle = 'rgba(220, 38, 38, 0.35)';
-            ctx.lineWidth = 2;
-            drawRoundedRect(ctx, 38, 38, width - 76, totalHeight - 76, 20);
-            ctx.stroke();
-
-            ctx.fillStyle = '#991b1b';
-            ctx.fillRect(38, 38, width - 76, 56);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '800 20px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('OFFICIAL ORDER RECEIPT  •  GADELA STREETWEAR', width / 2, 73);
-
-            const logoBoxSize = 210;
-            const logoX = (width - logoBoxSize) / 2;
-            const logoY = 115;
-
-            ctx.fillStyle = '#050505';
-            drawRoundedRect(ctx, logoX - 10, logoY - 10, logoBoxSize + 20, logoBoxSize + 20, 22);
-            ctx.fill();
-            ctx.strokeStyle = '#dc2626';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            if (logoImg) {
-                const scale = Math.min(logoBoxSize / logoImg.width, logoBoxSize / logoImg.height);
-                const drawW = logoImg.width * scale;
-                const drawH = logoImg.height * scale;
-                ctx.drawImage(
-                    logoImg,
-                    logoX + (logoBoxSize - drawW) / 2,
-                    logoY + (logoBoxSize - drawH) / 2,
-                    drawW,
-                    drawH
-                );
-            }
-
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '800 46px Syne, Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('GADELA', width / 2, 382);
-
-            ctx.fillStyle = '#ef4444';
-            ctx.font = '800 18px Inter, sans-serif';
-            ctx.fillText('MONEY HUNTER  •  OFFICIAL ORDER VOUCHER', width / 2, 412);
-
-            ctx.fillStyle = '#140505';
-            drawRoundedRect(ctx, 70, 434, width - 140, 52, 12);
-            ctx.fill();
-            ctx.strokeStyle = '#7f1d1d';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#fca5a5';
-            ctx.font = '700 18px Inter, sans-serif';
-            ctx.fillText(`ORDER ID: ${orderNumber}`, 92, 466);
-
-            ctx.textAlign = 'right';
-            ctx.fillStyle = '#e4e4e7';
-            ctx.font = '600 17px Inter, sans-serif';
-            ctx.fillText(dateStr, width - 92, 466);
-
-            let cursorY = 512;
-            ctx.fillStyle = '#0d0606';
-            drawRoundedRect(ctx, 70, cursorY, width - 140, itemsBlockHeight, 16);
-            ctx.fill();
-            ctx.strokeStyle = '#b91c1c';
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
-
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#ef4444';
-            ctx.font = '800 18px Inter, sans-serif';
-            ctx.fillText(`SELECTED PIECES (${totalQty} ITEM${totalQty > 1 ? 'S' : ''})`, 94, cursorY + 36);
-
-            ctx.strokeStyle = 'rgba(220, 38, 38, 0.35)';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(94, cursorY + 50);
-            ctx.lineTo(width - 94, cursorY + 50);
-            ctx.stroke();
-
-            let itemY = cursorY + 86;
-            items.forEach((item, idx) => {
-                const titleText = item.designTitle
-                    ? `${idx + 1}. ${item.category} — ${item.designTitle}`
-                    : `${idx + 1}. ${item.category}`;
-
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '700 23px Inter, sans-serif';
-                ctx.fillText(titleText, 94, itemY);
-
-                ctx.fillStyle = '#dc2626';
-                drawRoundedRect(ctx, width - 172, itemY - 24, 78, 34, 8);
-                ctx.fill();
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '800 20px Inter, sans-serif';
-                ctx.fillText(`×${item.qty}`, width - 133, itemY);
-
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#fca5a5';
-                ctx.font = '600 18px Inter, sans-serif';
-                const detailLine = `Color: ${item.color}   |   Size: ${item.size}${item.price ? `   |   Price: ${item.price}` : ''}`;
-                ctx.fillText(detailLine, 118, itemY + 30);
-
-                itemY += 86;
-            });
-
-            cursorY += itemsBlockHeight + 24;
-            ctx.fillStyle = '#0d0606';
-            drawRoundedRect(ctx, 70, cursorY, width - 140, customerBlockHeight, 16);
-            ctx.fill();
-            ctx.strokeStyle = '#b91c1c';
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
-
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#ef4444';
-            ctx.font = '800 18px Inter, sans-serif';
-            ctx.fillText('CUSTOMER DELIVERY DETAILS', 94, cursorY + 36);
-
-            ctx.strokeStyle = 'rgba(220, 38, 38, 0.35)';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(94, cursorY + 50);
-            ctx.lineTo(width - 94, cursorY + 50);
-            ctx.stroke();
-
-            ctx.fillStyle = '#a1a1aa';
-            ctx.font = '700 15px Inter, sans-serif';
-            ctx.fillText('CUSTOMER NAME:', 94, cursorY + 84);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '700 24px Inter, sans-serif';
-            ctx.fillText(name, 94, cursorY + 114);
-
-            ctx.fillStyle = '#a1a1aa';
-            ctx.font = '700 15px Inter, sans-serif';
-            ctx.fillText('PHONE NUMBER:', 94, cursorY + 152);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '700 24px Inter, sans-serif';
-            ctx.fillText(phone, 94, cursorY + 182);
-
-            ctx.fillStyle = '#a1a1aa';
-            ctx.font = '700 15px Inter, sans-serif';
-            ctx.fillText('DELIVERY ADDRESS:', 94, cursorY + 218);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '600 22px Inter, sans-serif';
-            addressLines.forEach((line, i) => {
-                ctx.fillText(line, 94, cursorY + 248 + (i * 32));
-            });
-
-            const scanY = cursorY + customerBlockHeight + 24;
-            ctx.fillStyle = '#0d0606';
-            drawRoundedRect(ctx, 70, scanY, width - 140, scanBlockHeight, 16);
-            ctx.fill();
-            ctx.strokeStyle = '#dc2626';
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
-
-            const qrBoxSize = 172;
-            const qrX = 96;
-            const qrY = scanY + 24;
-            ctx.fillStyle = '#050505';
+// ... existing code ... -->
+            const qrBoxSize = 178;
+            const qrX = 94;
+            const qrY = scanY + 21;
+            ctx.fillStyle = '#000000';
             drawRoundedRect(ctx, qrX, qrY, qrBoxSize, qrBoxSize, 12);
             ctx.fill();
-            ctx.strokeStyle = '#ef4444';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2.5;
             ctx.stroke();
 
             if (qrSource) {
-                ctx.drawImage(qrSource, qrX + 10, qrY + 10, qrBoxSize - 20, qrBoxSize - 20);
+                // Keep a clean black quiet zone around the white QR modules for fast scanning
+                ctx.drawImage(qrSource, qrX + 14, qrY + 14, qrBoxSize - 28, qrBoxSize - 28);
             }
 
-            const scanTextX = qrX + qrBoxSize + 28;
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#ef4444';
-            ctx.font = '800 20px Inter, sans-serif';
-            ctx.fillText('SCAN TO VERIFY ORDER', scanTextX, scanY + 56);
-
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '700 18px Inter, sans-serif';
-            ctx.fillText(`REF: ${orderNumber}  •  ${totalQty} PIECE${totalQty > 1 ? 'S' : ''}`, scanTextX, scanY + 90);
-
-            ctx.fillStyle = '#a1a1aa';
-            ctx.font = '500 16px Inter, sans-serif';
-            ctx.fillText('Scan this QR code with any phone camera', scanTextX, scanY + 124);
-            ctx.fillText('to instantly view customer & order items', scanTextX, scanY + 148);
-            ctx.fillText('for dispatch and delivery confirmation.', scanTextX, scanY + 172);
-
-            const footerY = scanY + scanBlockHeight + 22;
-            ctx.fillStyle = '#7f1d1d';
-            drawRoundedRect(ctx, 70, footerY, width - 140, 88, 14);
-            ctx.fill();
-
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '700 19px Inter, sans-serif';
-            ctx.fillText('NOTE: Delivery fees depend on the delivery location.', width / 2, footerY + 36);
-
-            ctx.fillStyle = '#fecaca';
-            ctx.font = '600 16px Inter, sans-serif';
-            ctx.fillText('GADELA Official DM: +234 708 071 3892  /  +234 916 718 7337', width / 2, footerY + 66);
-
-            const dataUrl = canvas.toDataURL('image/png');
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-
-            state.latestReceiptDataUrl = dataUrl;
-            state.latestReceiptBlob = blob;
-            state.latestReceiptFilename = `${orderNumber}-Receipt.png`;
-
-            return { dataUrl, blob, filename: state.latestReceiptFilename };
-        }
-
-        async function handleOrderReceiptAction(targetPhoneNumber) {
-            const nameInput = document.getElementById('customer-name');
-            const addressInput = document.getElementById('delivery-address');
-            const phoneInput = document.getElementById('customer-phone');
-
-            if (state.selectedItems.length === 0) {
-                showToast('Please select at least one clothing item from the collection first.');
-                return;
-            }
-
-            if (!nameInput.value.trim() || !addressInput.value.trim() || !phoneInput.value.trim()) {
-                showToast('Please enter your Name, Delivery Address, and Phone Number first.');
-                if (!nameInput.value.trim()) nameInput.focus();
-                else if (!addressInput.value.trim()) addressInput.focus();
-                else phoneInput.focus();
-                return;
-            }
-
-            state.targetWhatsApp = String(targetPhoneNumber).replace(/\D/g, '');
-            showToast('Generating your Black & Red GADELA Receipt...');
-
-            const receipt = await generateBlackRedReceiptImage();
-
-            const previewImg = document.getElementById('receipt-preview-img');
-            if (previewImg) previewImg.src = receipt.dataUrl;
-            updateReceiptModalDmTarget(state.targetWhatsApp);
-
-            document.getElementById('receipt-modal').classList.remove('hidden');
-        }
-
-        async function shareReceiptImageToWhatsApp() {
-            if (!state.latestReceiptBlob) {
-                await generateBlackRedReceiptImage();
-            }
-
-            const targetNum = String(state.targetWhatsApp || '2347080713892').replace(/\D/g, '');
-            const file = new File([state.latestReceiptBlob], state.latestReceiptFilename, { type: 'image/png' });
-
-            // Always save/prepare the receipt image so the customer has it ready to attach in the DM
-            downloadReceiptImage();
-
-            // On supported browsers with file sharing, trigger native share sheet without text
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                try {
-                    await navigator.share({
-                        files: [file]
-                    });
-                    return;
-                } catch (err) {
-                    if (err && err.name === 'AbortError') return;
-                }
-            }
-
-            // Open the specific WhatsApp number DM chat directly
-            showToast(`Opening WhatsApp DM for +${targetNum}...`);
-            openSpecificWhatsAppDm(targetNum);
-        }
-
-        function downloadReceiptImage() {
-            if (!state.latestReceiptDataUrl) return;
-            const link = document.createElement('a');
-            link.href = state.latestReceiptDataUrl;
-            link.download = state.latestReceiptFilename || 'GADELA-Order-Receipt.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast('Black & Red GADELA Order Receipt saved!');
-        }
-
-        function closeReceiptModal() {
-            document.getElementById('receipt-modal').classList.add('hidden');
-        }
-
-        function submitOrderReceipt(event) {
-            event.preventDefault();
-            handleOrderReceiptAction(state.targetWhatsApp);
-        }
-
-        function handleDirectInquiryClick(event, num) {
-            event.preventDefault();
-            const cleanDigits = String(num).replace(/\D/g, '');
-            state.targetWhatsApp = cleanDigits;
-            updateReceiptModalDmTarget(cleanDigits);
-            showToast(`Opening WhatsApp DM (+${cleanDigits})...`);
-            openSpecificWhatsAppDm(cleanDigits);
-        }
-
-        function copyTextSafe(text, successMsg) {
-            const helper = document.createElement('textarea');
-            helper.value = text;
-            helper.setAttribute('readonly', '');
-            helper.style.position = 'fixed';
-            helper.style.opacity = '0';
-            document.body.appendChild(helper);
-            helper.select();
-            try {
-                document.execCommand('copy');
-                showToast(successMsg);
-            } catch (err) {
-                showToast('Please manually select and copy the text.');
-            }
-            document.body.removeChild(helper);
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast-notification');
-            document.getElementById('toast-message').textContent = msg;
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3500);
-        }
-
-        // ==================== OWNER STUDIO / ADMIN FUNCTIONS ====================
-        function openAdminModal() {
-            document.getElementById('admin-modal').classList.remove('hidden');
-            document.getElementById('admin-pin-input').focus();
-        }
-
-        function closeAdminModal() {
-            document.getElementById('admin-modal').classList.add('hidden');
-        }
-
-        function verifyAdminPin() {
-            const inputPin = document.getElementById('admin-pin-input').value.trim();
-            const savedPin = localStorage.getItem(PIN_STORAGE_KEY) || '2026';
-            const errorEl = document.getElementById('pin-error-msg');
-
-            if (inputPin === savedPin) {
-                errorEl.classList.add('hidden');
-                document.getElementById('admin-lock-screen').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                renderAdminLists();
-                updateJsonExportBox();
-            } else {
-                errorEl.classList.remove('hidden');
-            }
-        }
-
-        function switchAdminTab(tabName) {
-            ['collections', 'branding', 'publish'].forEach(t => {
-                document.getElementById(`admin-panel-${t}`).classList.add('hidden');
-                const btn = document.getElementById(`admintab-${t}`);
-                btn.classList.remove('bg-yellow-400', 'text-black');
-                btn.classList.add('bg-zinc-900', 'text-zinc-300', 'border', 'border-zinc-800');
-            });
-
-            document.getElementById(`admin-panel-${tabName}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`admintab-${tabName}`);
-            activeBtn.classList.remove('bg-zinc-900', 'text-zinc-300', 'border', 'border-zinc-800');
-            activeBtn.classList.add('bg-yellow-400', 'text-black');
-
-            if (tabName === 'publish') updateJsonExportBox();
-        }
-
-        function readCompressedImage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const maxDim = 800;
-                        let w = img.width;
-                        let h = img.height;
-                        if (w > maxDim || h > maxDim) {
-                            if (w > h) {
-                                h = Math.round((h * maxDim) / w);
-                                w = maxDim;
-                            } else {
-                                w = Math.round((w * maxDim) / h);
-                                h = maxDim;
-                            }
-                        }
-                        canvas.width = w;
-                        canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', 0.82));
-                    };
-                    img.onerror = reject;
-                    img.src = e.target.result;
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function readVideoDataUrl(file) {
-            return new Promise((resolve, reject) => {
-                const maxBytes = 8 * 1024 * 1024;
-                if (file.size > maxBytes) {
-                    reject(new Error('Video file is larger than 8MB. Please use a shorter clip or paste a hosted .mp4 URL.'));
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = () => reject(new Error('Could not read video file.'));
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function addCollectionItem() {
-            const category = document.getElementById('new-item-category').value;
-            const title = document.getElementById('new-item-title').value.trim() || `${category} Drop #${(storeData.collections[category]?.length || 0) + 1}`;
-            const price = document.getElementById('new-item-price').value.trim();
-            const urlInput = document.getElementById('new-item-url').value.trim();
-            const fileInput = document.getElementById('new-item-file');
-
-            let finalImage = urlInput;
-            if (!finalImage && fileInput.files && fileInput.files[0]) {
-                finalImage = await readCompressedImage(fileInput.files[0]);
-            }
-
-            if (!finalImage) {
-                showToast('Please paste an image URL or choose a photo file first.');
-                return;
-            }
-
-            storeData.collections[category].push({
-                id: Date.now(),
-                title,
-                price,
-                image: finalImage
-            });
-
-            document.getElementById('new-item-title').value = '';
-            document.getElementById('new-item-price').value = '';
-            document.getElementById('new-item-url').value = '';
-            fileInput.value = '';
-
-            saveStoreLocally();
-            selectCategory(category);
-            showToast(`Added "${title}" to ${category}!`);
-        }
-
-        function removeCollectionItem(category, id) {
-            storeData.collections[category] = storeData.collections[category].filter(item => item.id !== id);
-            saveStoreLocally();
-            showToast('Item removed from collection.');
-        }
-
-        async function saveBrandLogo() {
-            const urlInput = document.getElementById('admin-logo-url').value.trim();
-            const fileInput = document.getElementById('admin-logo-file');
-
-            let finalLogo = urlInput;
-            if (!finalLogo && fileInput.files && fileInput.files[0]) {
-                finalLogo = await readCompressedImage(fileInput.files[0]);
-            }
-
-            if (!finalLogo) {
-                showToast('Enter a logo URL or select a logo image file.');
-                return;
-            }
-
-            storeData.logoUrl = finalLogo;
-            document.getElementById('admin-logo-url').value = '';
-            fileInput.value = '';
-            saveStoreLocally();
-            showToast('GADELA Logo updated!');
-        }
-
-        function clearBrandLogo() {
-            storeData.logoUrl = DEFAULT_GADELA_RED_BLACK_LOGO;
-            saveStoreLocally();
-            showToast('Logo reset to default Red & Black GADELA emblem.');
-        }
-
-        async function addShowcaseItem() {
-            const caption = document.getElementById('new-showcase-caption').value.trim() || 'GADELA Money Hunter';
-            const urlInput = document.getElementById('new-showcase-url').value.trim();
-            const fileInput = document.getElementById('new-showcase-file');
-
-            let finalMedia = urlInput;
-            let mediaType = 'image';
-
-            if (urlInput) {
-                mediaType = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(urlInput) ? 'video' : 'image';
-            } else if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                if (file.type.startsWith('video/')) {
-                    try {
-                        finalMedia = await readVideoDataUrl(file);
-                        mediaType = 'video';
-                    } catch (err) {
-                        showToast(err.message);
-                        return;
-                    }
-                } else {
-                    finalMedia = await readCompressedImage(file);
-                    mediaType = 'image';
-                }
-            }
-
-            if (!finalMedia) {
-                showToast('Enter a photo/video URL or choose a file for Showcase.');
-                return;
-            }
-
-            storeData.showcase.push({
-                id: Date.now(),
-                caption,
-                mediaType,
-                mediaUrl: finalMedia,
-                image: finalMedia
-            });
-
-            document.getElementById('new-showcase-caption').value = '';
-            document.getElementById('new-showcase-url').value = '';
-            fileInput.value = '';
-            saveStoreLocally();
-            showToast(`${mediaType === 'video' ? 'Video' : 'Photo'} added to GADELA Showcase!`);
-        }
-
-        function removeShowcaseItem(id) {
-            storeData.showcase = storeData.showcase.filter(item => item.id !== id);
-            saveStoreLocally();
-            showToast('Showcase item removed.');
-        }
-
-        function renderAdminLists() {
-            const itemsList = document.getElementById('admin-items-list');
-            itemsList.innerHTML = '';
-
-            let hasAny = false;
-            Object.keys(storeData.collections).forEach(cat => {
-                storeData.collections[cat].forEach(item => {
-                    hasAny = true;
-                    const row = document.createElement('div');
-                    row.className = 'flex items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 rounded-xl p-2.5';
-                    row.innerHTML = `
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <img src="${item.image}" class="w-10 h-10 rounded-lg object-cover bg-zinc-950 shrink-0">
-                            <div class="min-w-0">
-                                <p class="text-xs font-bold text-white truncate">${item.title}</p>
-                                <p class="text-[11px] text-zinc-400">${cat} ${item.price ? '• ' + item.price : ''}</p>
-                            </div>
-                        </div>
-                        <button onclick="removeCollectionItem('${cat}', ${item.id})" class="text-zinc-500 hover:text-red-400 p-2 cursor-pointer" title="Delete">
-                            <i class="fa-solid fa-trash-can text-xs"></i>
-                        </button>
-                    `;
-                    itemsList.appendChild(row);
-                });
-            });
-
-            if (!hasAny) {
-                itemsList.innerHTML = '<p class="text-xs text-zinc-500 col-span-2 py-3 text-center">No designs uploaded yet. Use the form above to add your first item.</p>';
-            }
-
-            const showcaseList = document.getElementById('admin-showcase-list');
-            showcaseList.innerHTML = '';
-            (storeData.showcase || []).forEach(entry => {
-                const src = entry.mediaUrl || entry.image || '';
-                const isVideo = isVideoEntry(entry);
-                const thumbHtml = isVideo
-                    ? `<div class="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center shrink-0 text-yellow-400"><i class="fa-solid fa-video text-xs"></i></div>`
-                    : `<img src="${src}" class="w-9 h-9 rounded-lg object-cover shrink-0">`;
-
-                const card = document.createElement('div');
-                card.className = 'flex items-center justify-between gap-2 bg-zinc-950 border border-zinc-800 rounded-xl p-2';
-                card.innerHTML = `
-                    <div class="flex items-center gap-2 min-w-0">
-                        ${thumbHtml}
-                        <span class="text-xs text-zinc-300 truncate">${entry.caption}</span>
-                    </div>
-                    <button onclick="removeShowcaseItem(${entry.id})" class="text-zinc-500 hover:text-red-400 p-1 cursor-pointer">
-                        <i class="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                `;
-                showcaseList.appendChild(card);
-            });
-        }
-
-        function updateJsonExportBox() {
-            const box = document.getElementById('json-export-box');
-            if (box) {
-                box.value = JSON.stringify(storeData, null, 2);
-            }
-        }
-
-        function exportCatalogJSON() {
-            updateJsonExportBox();
-            copyTextSafe(JSON.stringify(storeData, null, 2), 'Store JSON copied! Paste into gadela-catalog.json on GitHub.');
-        }
-
-        function downloadCatalogJSON() {
-            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(storeData, null, 2));
-            const a = document.createElement('a');
-            a.setAttribute('href', dataStr);
-            a.setAttribute('download', 'gadela-catalog.json');
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showToast('Downloaded gadela-catalog.json!');
-        }
-
-        function updateAdminPin() {
-            const newPin = document.getElementById('new-pin-input').value.trim();
-            if (newPin.length < 4) {
-                showToast('Please enter at least 4 characters for your PIN.');
-                return;
-            }
-            localStorage.setItem(PIN_STORAGE_KEY, newPin);
-            document.getElementById('new-pin-input').value = '';
-            showToast('Owner PIN updated successfully!');
-        }
-
-        async function trackAndRenderVisitorCount() {
-            const headerEl = document.getElementById('visitor-count-header');
-            const footerEl = document.getElementById('visitor-count-footer');
-            const localVisitorKey = 'gadela_store_visitors_v1';
-            const sessionKey = 'gadela_session_counted_v1';
-
-            let localCount = parseInt(localStorage.getItem(localVisitorKey) || '0', 10);
-            if (!sessionStorage.getItem(sessionKey)) {
-                localCount += 1;
-                localStorage.setItem(localVisitorKey, String(localCount));
-                sessionStorage.setItem(sessionKey, '1');
-            }
-
-            const renderCount = (val) => {
-                const formatted = Number(val).toLocaleString();
-                if (headerEl) headerEl.textContent = formatted;
-                if (footerEl) footerEl.textContent = formatted;
-            };
-
-            renderCount(localCount);
-
-            try {
-                const res = await fetch('https://api.counterapi.dev/v1/gadela-money-hunter-store/visits/up');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && typeof data.count === 'number') {
-                        renderCount(data.count);
-                    }
-                }
-            } catch (e) {
-                // Falls back cleanly to local visitor count if offline or blocked
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initializeStoreData();
-            trackAndRenderVisitorCount();
-        });
-    </script>
-</body>
-</html>
+            const scanTextX = qrX + qrBoxSize + 26;
+// ... existing code ... -->
