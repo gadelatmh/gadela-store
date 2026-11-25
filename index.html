@@ -129,7 +129,7 @@
             <div class="p-4 sm:p-5 bg-zinc-950 border-t border-red-900/50 space-y-2.5">
                 <button type="button" onclick="shareReceiptImageToWhatsApp()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-sm py-3.5 px-5 rounded-xl transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-red-950/60 cursor-pointer">
                     <i class="fa-brands fa-whatsapp text-lg"></i>
-                    <span id="share-receipt-btn-label">Send Receipt Image to WhatsApp DM</span>
+                    <span id="share-receipt-btn-label">Send Receipt Image to +2347080713892 DM</span>
                 </button>
 
                 <div class="grid grid-cols-2 gap-2.5">
@@ -209,7 +209,7 @@
                 <div>
                     <h3 class="text-lg font-bold text-white">Owner Access Required</h3>
                     <p class="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
-                        Enter your Owner PIN to upload your Logo, add new T-Shirt/Hoodie/Pants/Shoe designs, or update the Showcase live on your site.
+                        Enter your Owner PIN to upload your Logo, add new T-Shirt/Hoodie/Pants/Shoe designs, scan receipts, or update the Showcase live on your site.
                     </p>
                 </div>
                 <div class="max-w-xs mx-auto space-y-3">
@@ -470,7 +470,7 @@
                 </p>
             </div>
 
-            <!-- Right: Brand Quote -->
+            <!-- Right: Brand Quote & Store Visitors Counter -->
             <div class="lg:col-span-4 flex flex-col items-center lg:items-end justify-center text-center lg:text-right px-2 gap-2.5">
                 <p class="text-sm sm:text-base text-zinc-300 font-medium leading-relaxed italic">
                     “We hunt money every day. That is why you need <span class="text-white font-bold not-italic">GADELA</span> in your life.”
@@ -498,7 +498,7 @@
                                 Home — Collections
                             </h2>
                             <p class="text-xs text-zinc-400 mt-1">
-                                Pick your color & size, then tap one or multiple pieces to add to your bag.
+                                Pick your color & size, then tap any design to view it or add one or multiple pieces to your bag.
                             </p>
                         </div>
                         <span id="collection-status-badge" class="text-xs bg-zinc-900 border border-zinc-700 text-zinc-400 px-3 py-1.5 rounded-lg">
@@ -730,7 +730,7 @@
                                 </button>
                             </div>
                             <p class="text-[11px] text-zinc-400 leading-relaxed">
-                                Orders are generated as a <strong class="text-red-400">Black & Red GADELA Receipt Image</strong> with the official red-and-black GADELA logo and scannable QR code—no plain text messages.
+                                Orders are generated as a <strong class="text-red-400">Black & Red GADELA Receipt Image</strong> with the official red-and-black GADELA logo and scannable white QR code—no plain text messages.
                             </p>
                         </div>
                     </form>
@@ -757,7 +757,7 @@
         </main>
     </div>
 
-    <!-- Footer with Discreet Owner Studio Trigger -->
+    <!-- Footer with Visitor Count & Discreet Owner Studio Trigger -->
     <footer class="border-t border-zinc-900 py-5 px-4 text-center text-xs text-zinc-500 mt-6">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <p>&copy; <span id="year"></span> GADELA — Money Hunter. All Rights Reserved.</p>
@@ -774,39 +774,33 @@
         </div>
     </footer>
 
-    <!-- Interactive Application, Multi-Select Store & Black/Red Receipt Image Engine -->
+    <!-- Interactive Application, Multi-Select Store, Visitors & Black/Red Receipt Image Engine -->
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
         const STORAGE_KEY = 'gadela_store_v1';
         const PIN_STORAGE_KEY = 'gadela_owner_pin_v1';
         const RECEIPT_RECORDS_KEY = 'gadela_receipt_records_v1';
+        const LOCAL_VISITORS_KEY = 'gadela_local_visitors_v1';
         const REMOTE_CATALOG_FILE = 'gadela-catalog.json';
 
-        // Default Red & Black GADELA Artwork Emblem (Embedded SVG Data URI matching the red & black GADELA mask/tongue/eyes drawing)
+        // Default Red & Black GADELA Artwork Emblem
         const DEFAULT_GADELA_RED_BLACK_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 620" width="600" height="620">
   <rect width="600" height="620" fill="#050505"/>
-  <!-- Sharp Left Eye (Black & Crimson Red) -->
   <path d="M35 28 L255 125 L230 198 L88 152 Z" fill="#0d0d0d" stroke="#2a2a2a" stroke-width="5"/>
   <path d="M98 110 C138 96, 198 112, 224 148 C196 178, 134 172, 98 110 Z" fill="#180505" stroke="#b91c1c" stroke-width="6"/>
   <ellipse cx="164" cy="138" rx="18" ry="24" fill="#991b1b"/>
-  <!-- Sharp Right Eye (Black & Crimson Red) -->
   <path d="M565 28 L345 125 L370 198 L512 152 Z" fill="#0d0d0d" stroke="#2a2a2a" stroke-width="5"/>
   <path d="M502 110 C462 96, 402 112, 376 148 C404 178, 466 172, 502 110 Z" fill="#180505" stroke="#b91c1c" stroke-width="6"/>
   <ellipse cx="436" cy="138" rx="18" ry="24" fill="#991b1b"/>
-  <!-- Forehead Cross Sigil -->
   <line x1="300" y1="120" x2="300" y2="225" stroke="#b91c1c" stroke-width="6" stroke-linecap="round"/>
   <line x1="274" y1="152" x2="326" y2="188" stroke="#b91c1c" stroke-width="5" stroke-linecap="round"/>
   <line x1="322" y1="145" x2="278" y2="192" stroke="#b91c1c" stroke-width="5" stroke-linecap="round"/>
-  <!-- Stylized GADELA Lettering -->
   <text x="300" y="298" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="900" font-size="82" letter-spacing="8" fill="#120404" stroke="#b91c1c" stroke-width="4">GADELÂ</text>
-  <!-- Wide Grinning Mouth & Fangs -->
   <path d="M132 332 C195 392, 405 392, 468 332 C488 438, 415 512, 300 512 C185 512, 112 438, 132 332 Z" fill="#090909" stroke="#b91c1c" stroke-width="8" stroke-linejoin="round"/>
-  <!-- Upper & Lower Teeth -->
   <path d="M152 355 L176 402 L202 368 L230 415 L264 378 L300 418 L336 378 L370 415 L398 368 L424 402 L448 355" fill="none" stroke="#991b1b" stroke-width="5" stroke-linejoin="round"/>
   <path d="M162 438 L192 405 L224 452 L262 415 L300 456 L338 415 L376 452 L408 405 L438 438" fill="none" stroke="#991b1b" stroke-width="5" stroke-linejoin="round"/>
-  <!-- Crimson Textured Tongue -->
   <path d="M236 442 C222 515, 240 592, 300 595 C360 592, 378 515, 364 442 C338 426, 314 436, 300 454 C286 436, 262 426, 236 442 Z" fill="#991b1b" stroke="#dc2626" stroke-width="6"/>
   <path d="M300 454 C298 505, 298 552, 300 586" fill="none" stroke="#450a0a" stroke-width="6" stroke-linecap="round"/>
 </svg>`);
@@ -874,6 +868,43 @@
             selectedItems: []
         };
 
+        // ==================== STORE VISITORS COUNTER ====================
+        function updateVisitorBadges(count) {
+            const formatted = Number(count || 0).toLocaleString();
+            const h = document.getElementById('visitor-count-header');
+            const f = document.getElementById('visitor-count-footer');
+            if (h) h.textContent = formatted;
+            if (f) f.textContent = formatted;
+        }
+
+        async function trackStoreVisitor() {
+            let localCount = 1;
+            try {
+                const raw = localStorage.getItem(LOCAL_VISITORS_KEY);
+                localCount = raw ? (parseInt(raw, 10) || 0) + 1 : 1;
+                localStorage.setItem(LOCAL_VISITORS_KEY, String(localCount));
+            } catch (e) {
+                localCount = 1;
+            }
+            updateVisitorBadges(localCount);
+
+            try {
+                const namespace = 'gadela-money-hunter-store';
+                const key = 'visits';
+                const res = await fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (typeof data.count === 'number') {
+                        const finalCount = Math.max(data.count, localCount);
+                        updateVisitorBadges(finalCount);
+                    }
+                }
+            } catch (e) {
+                // Keep local count when offline or blocked
+            }
+        }
+
+        // ==================== DIRECT WHATSAPP DM HELPERS ====================
         function getWhatsAppDmUrls(phoneNumber) {
             const cleanDigits = String(phoneNumber || '2347080713892').replace(/\D/g, '');
             return {
@@ -904,6 +935,14 @@
             }
         }
 
+        function handleDirectInquiryClick(event, phoneNumber) {
+            event.preventDefault();
+            const cleanDigits = String(phoneNumber || '2347080713892').replace(/\D/g, '');
+            state.targetWhatsApp = cleanDigits;
+            showToast(`Opening WhatsApp DM (+${cleanDigits})...`);
+            openSpecificWhatsAppDm(cleanDigits);
+        }
+
         function updateReceiptModalDmTarget(phoneNumber) {
             const cleanDigits = String(phoneNumber || '2347080713892').replace(/\D/g, '');
             const { webUrl } = getWhatsAppDmUrls(cleanDigits);
@@ -922,6 +961,7 @@
             }
         }
 
+        // ==================== PRODUCT QUICK-VIEW & MULTI-SELECT BAG ====================
         function buildItemKey(category, designTitle, color, size) {
             return `${category}|${designTitle || ''}|${color}|${size}`;
         }
@@ -1138,6 +1178,7 @@
             });
         }
 
+        // ==================== STORE DATA & CATALOG LOADING ====================
         async function initializeStoreData() {
             try {
                 const savedLocal = localStorage.getItem(STORAGE_KEY);
@@ -1494,6 +1535,46 @@
             }
         }
 
+        // ==================== RECEIPT PAYMENT & REPEAT-USE RECORDS ====================
+        function loadReceiptRecords() {
+            try {
+                const raw = localStorage.getItem(RECEIPT_RECORDS_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveReceiptRecords(records) {
+            try {
+                localStorage.setItem(RECEIPT_RECORDS_KEY, JSON.stringify(records));
+            } catch (e) {
+                console.warn('Could not save receipt record');
+            }
+        }
+
+        function registerIssuedReceipt(orderPayload) {
+            const records = loadReceiptRecords();
+            const existing = records[orderPayload.orderId] || {
+                orderId: orderPayload.orderId,
+                paid: false,
+                paidAt: null,
+                useCount: 1,
+                createdAt: orderPayload.timestamp,
+                customerName: orderPayload.customerName,
+                customerPhone: orderPayload.customerPhone,
+                deliveryAddress: orderPayload.deliveryAddress,
+                items: orderPayload.items
+            };
+            existing.customerName = orderPayload.customerName;
+            existing.customerPhone = orderPayload.customerPhone;
+            existing.deliveryAddress = orderPayload.deliveryAddress;
+            existing.items = orderPayload.items;
+            records[orderPayload.orderId] = existing;
+            saveReceiptRecords(records);
+            return existing;
+        }
+
         // ==================== BLACK & RED OFFICIAL RECEIPT IMAGE GENERATOR ====================
         function loadImageForCanvas(src) {
             return new Promise((resolve) => {
@@ -1566,7 +1647,234 @@
                     });
 
                     setTimeout(() => {
-// ... existing code ... -->
+                        const canvasEl = tempDiv.querySelector('canvas');
+                        const imgEl = tempDiv.querySelector('img');
+                        if (canvasEl) {
+                            resolve(canvasEl);
+                        } else if (imgEl && imgEl.complete) {
+                            resolve(imgEl);
+                        } else {
+                            resolve(null);
+                        }
+                        if (tempDiv.parentNode) {
+                            tempDiv.parentNode.removeChild(tempDiv);
+                        }
+                    }, 60);
+                } catch (err) {
+                    if (tempDiv.parentNode) {
+                        tempDiv.parentNode.removeChild(tempDiv);
+                    }
+                    resolve(null);
+                }
+            });
+        }
+
+        async function generateBlackAndRedReceiptImage(orderData) {
+            const width = 900;
+            const items = orderData.items || [];
+            const wrappedItemBlocks = [];
+
+            const measureCanvas = document.createElement('canvas');
+            const mCtx = measureCanvas.getContext('2d');
+            mCtx.font = 'bold 25px Inter, Arial, sans-serif';
+
+            items.forEach((item, idx) => {
+                const namePart = item.designTitle ? `${item.category} (${item.designTitle})` : item.category;
+                const pricePart = item.price ? ` • ${item.price}` : '';
+                const mainLine = `${idx + 1}. ${namePart}${pricePart} — ×${item.qty}`;
+                const subLine = `Color: ${item.color}   |   Size: ${item.size}`;
+                wrappedItemBlocks.push({
+                    mainLines: wrapCanvasLines(mCtx, mainLine, 680),
+                    subLine
+                });
+            });
+
+            mCtx.font = '600 24px Inter, Arial, sans-serif';
+            const addressLines = wrapCanvasLines(mCtx, orderData.deliveryAddress || 'Not provided', 530);
+
+            const itemsSectionHeight = Math.max(130, wrappedItemBlocks.reduce((acc, b) => acc + (b.mainLines.length * 32) + 54, 40));
+            const customerSectionHeight = Math.max(185, 115 + (addressLines.length * 30));
+            const qrSectionHeight = 235;
+            const height = 430 + itemsSectionHeight + customerSectionHeight + qrSectionHeight;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            // Deep Black Background
+            ctx.fillStyle = '#070709';
+            ctx.fillRect(0, 0, width, height);
+
+            // Subtle Crimson Radial Glow
+            const glow = ctx.createRadialGradient(width / 2, 160, 40, width / 2, 160, 480);
+            glow.addColorStop(0, 'rgba(220, 38, 38, 0.24)');
+            glow.addColorStop(1, 'rgba(7, 7, 9, 0)');
+            ctx.fillStyle = glow;
+            ctx.fillRect(0, 0, width, height);
+
+            // Outer Crimson Border Frame
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 6;
+            drawRoundedRect(ctx, 24, 24, width - 48, height - 48, 28);
+            ctx.stroke();
+
+            // Inner Dark Red Accent Border
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.35)';
+            ctx.lineWidth = 2;
+            drawRoundedRect(ctx, 36, 36, width - 72, height - 72, 22);
+            ctx.stroke();
+
+            // Top Crimson Banner Strip
+            ctx.fillStyle = '#991b1b';
+            drawRoundedRect(ctx, 56, 56, width - 112, 46, 12);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 17px Inter, Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('OFFICIAL ORDER RECEIPT  •  DIRECT WHATSAPP DM', width / 2, 85);
+
+            // Red & Black GADELA Logo Box on Left
+            const logoBoxX = 64;
+            const logoBoxY = 126;
+            const logoBoxSize = 156;
+            ctx.fillStyle = '#050505';
+            drawRoundedRect(ctx, logoBoxX, logoBoxY, logoBoxSize, logoBoxSize, 20);
+            ctx.fill();
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            const logoSrc = storeData.logoUrl || DEFAULT_GADELA_RED_BLACK_LOGO;
+            const logoImg = await loadImageForCanvas(logoSrc);
+            if (logoImg) {
+                const pad = 12;
+                const maxW = logoBoxSize - pad * 2;
+                const maxH = logoBoxSize - pad * 2;
+                const ratio = Math.min(maxW / (logoImg.width || 1), maxH / (logoImg.height || 1));
+                const drawW = (logoImg.width || maxW) * ratio;
+                const drawH = (logoImg.height || maxH) * ratio;
+                const drawX = logoBoxX + (logoBoxSize - drawW) / 2;
+                const drawY = logoBoxY + (logoBoxSize - drawH) / 2;
+                ctx.drawImage(logoImg, drawX, drawY, drawW, drawH);
+            }
+
+            // Brand Title & Motto on Right of Logo
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 54px Syne, Arial, sans-serif';
+            ctx.fillText('GADELA', 244, 178);
+
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '800 20px Inter, Arial, sans-serif';
+            ctx.fillText('MONEY HUNTER  •  STREETWEAR', 246, 214);
+
+            ctx.fillStyle = '#fca5a5';
+            ctx.font = '500 16px Inter, Arial, sans-serif';
+            ctx.fillText(`Order ID: ${orderData.orderId}   |   ${orderData.timestamp}`, 246, 248);
+
+            // Red Divider Line
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(64, 304);
+            ctx.lineTo(width - 64, 304);
+            ctx.stroke();
+
+            // Ordered Items Card (Black with Crimson Left Bar)
+            const itemsBoxY = 328;
+            ctx.fillStyle = '#110708';
+            drawRoundedRect(ctx, 64, itemsBoxY, width - 128, itemsSectionHeight, 18);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.55)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(64, itemsBoxY + 14, 8, itemsSectionHeight - 28);
+
+            ctx.fillStyle = '#f87171';
+            ctx.font = 'bold 18px Inter, Arial, sans-serif';
+            ctx.fillText(`ORDERED ITEMS (${orderData.totalQty} PIECE${orderData.totalQty === 1 ? '' : 'S'})`, 92, itemsBoxY + 38);
+
+            let cursorY = itemsBoxY + 72;
+            wrappedItemBlocks.forEach(block => {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 23px Inter, Arial, sans-serif';
+                block.mainLines.forEach(line => {
+                    ctx.fillText(line, 92, cursorY);
+                    cursorY += 30;
+                });
+
+                ctx.fillStyle = '#fca5a5';
+                ctx.font = '600 19px Inter, Arial, sans-serif';
+                ctx.fillText(block.subLine, 114, cursorY);
+                cursorY += 36;
+            });
+
+            // Customer & Delivery Details Card
+            const custBoxY = itemsBoxY + itemsSectionHeight + 22;
+            ctx.fillStyle = '#110708';
+            drawRoundedRect(ctx, 64, custBoxY, width - 128, customerSectionHeight, 18);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.55)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(64, custBoxY + 14, 8, customerSectionHeight - 28);
+
+            ctx.fillStyle = '#f87171';
+            ctx.font = 'bold 18px Inter, Arial, sans-serif';
+            ctx.fillText('CUSTOMER & DELIVERY DETAILS', 92, custBoxY + 38);
+
+            let infoY = custBoxY + 74;
+            ctx.fillStyle = '#fca5a5';
+            ctx.font = 'bold 20px Inter, Arial, sans-serif';
+            ctx.fillText('Name:', 92, infoY);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '600 21px Inter, Arial, sans-serif';
+            ctx.fillText(orderData.customerName, 240, infoY);
+
+            infoY += 38;
+            ctx.fillStyle = '#fca5a5';
+            ctx.font = 'bold 20px Inter, Arial, sans-serif';
+            ctx.fillText('Phone:', 92, infoY);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '600 21px Inter, Arial, sans-serif';
+            ctx.fillText(orderData.customerPhone, 240, infoY);
+
+            infoY += 38;
+            ctx.fillStyle = '#fca5a5';
+            ctx.font = 'bold 20px Inter, Arial, sans-serif';
+            ctx.fillText('Address:', 92, infoY);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '600 20px Inter, Arial, sans-serif';
+            addressLines.forEach((line, idx) => {
+                ctx.fillText(line, 240, infoY + (idx * 28));
+            });
+
+            // Scannable White QR Code & Repeat-Payment Verification Box
+            const scanY = custBoxY + customerSectionHeight + 22;
+            ctx.fillStyle = '#140607';
+            drawRoundedRect(ctx, 64, scanY, width - 128, qrSectionHeight, 18);
+            ctx.fill();
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            const qrPayload = JSON.stringify({
+                brand: 'GADELA',
+                orderId: orderData.orderId,
+                date: orderData.timestamp,
+                customer: orderData.customerName,
+                phone: orderData.customerPhone,
+                address: orderData.deliveryAddress,
+                items: orderData.items
+            });
+            const qrSource = await generateOrderQrCanvas(qrPayload);
+
             const qrBoxSize = 178;
             const qrX = 94;
             const qrY = scanY + 21;
@@ -1583,4 +1891,787 @@
             }
 
             const scanTextX = qrX + qrBoxSize + 26;
-// ... existing code ... -->
+            ctx.fillStyle = '#ef4444';
+            ctx.font = '800 20px Inter, Arial, sans-serif';
+            ctx.fillText('SCAN FOR PAYMENT & RE-USE', scanTextX, scanY + 52);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '600 17px Inter, Arial, sans-serif';
+            ctx.fillText(`Order Code: ${orderData.orderId}`, scanTextX, scanY + 86);
+
+            ctx.fillStyle = '#fca5a5';
+            ctx.font = '500 15px Inter, Arial, sans-serif';
+            const scanDescLines = wrapCanvasLines(
+                ctx,
+                'Scan in Owner Studio (Tab 3) to verify payment, mark PAID, or track repeat purchases with this same receipt.',
+                430
+            );
+            let scanLineY = scanY + 118;
+            scanDescLines.forEach(line => {
+                ctx.fillText(line, scanTextX, scanLineY);
+                scanLineY += 22;
+            });
+
+            // Footer Notice Bar
+            const footerY = scanY + qrSectionHeight + 22;
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 20px Inter, Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Delivery fees depend on the location.', width / 2, footerY);
+
+            ctx.fillStyle = '#a1a1aa';
+            ctx.font = '600 16px Inter, Arial, sans-serif';
+            ctx.fillText('GADELA — We hunt money every day.', width / 2, footerY + 34);
+
+            const dataUrl = canvas.toDataURL('image/png');
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+            return { dataUrl, blob };
+        }
+
+        async function handleOrderReceiptAction(phoneNumber) {
+            const items = getEffectiveOrderItems();
+            if (items.length === 0) {
+                showToast('Please select at least one item from the collection first.');
+                return;
+            }
+
+            const nameInput = document.getElementById('customer-name');
+            const addressInput = document.getElementById('delivery-address');
+            const phoneInput = document.getElementById('customer-phone');
+
+            const name = nameInput.value.trim();
+            const address = addressInput.value.trim();
+            const phone = phoneInput.value.trim();
+
+            if (!name || !address || !phone) {
+                showToast('Please fill in your Name, Delivery Address, and Phone Number first.');
+                if (!name) nameInput.focus();
+                else if (!address) addressInput.focus();
+                else phoneInput.focus();
+                return;
+            }
+
+            const cleanDigits = String(phoneNumber || '2347080713892').replace(/\D/g, '');
+            state.targetWhatsApp = cleanDigits;
+            updateReceiptModalDmTarget(cleanDigits);
+
+            const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+            const orderId = `GDL-${Math.floor(100000 + Math.random() * 900000)}`;
+            const timestamp = new Date().toLocaleString([], {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const orderPayload = {
+                orderId,
+                timestamp,
+                customerName: name,
+                customerPhone: phone,
+                deliveryAddress: address,
+                totalQty,
+                items: items.map(i => ({
+                    category: i.category,
+                    designTitle: i.designTitle,
+                    price: i.price,
+                    color: i.color,
+                    size: i.size,
+                    qty: i.qty
+                }))
+            };
+
+            registerIssuedReceipt(orderPayload);
+
+            showToast('Generating black & red GADELA receipt image...');
+            const { dataUrl, blob } = await generateBlackAndRedReceiptImage(orderPayload);
+
+            state.latestReceiptDataUrl = dataUrl;
+            state.latestReceiptBlob = blob;
+            state.latestReceiptFilename = `GADELA-Receipt-${orderId}.png`;
+
+            const previewImg = document.getElementById('receipt-preview-img');
+            previewImg.src = dataUrl;
+
+            document.getElementById('receipt-modal').classList.remove('hidden');
+            showToast('Receipt image ready! Tap to send to WhatsApp DM.');
+        }
+
+        function submitOrderReceipt(event) {
+            event.preventDefault();
+            handleOrderReceiptAction(state.targetWhatsApp);
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
+
+        function downloadReceiptImage() {
+            if (!state.latestReceiptDataUrl) {
+                showToast('Generate a receipt image first.');
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = state.latestReceiptDataUrl;
+            link.download = state.latestReceiptFilename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Receipt image saved to your device!');
+        }
+
+        async function shareReceiptImageToWhatsApp() {
+            if (!state.latestReceiptBlob) {
+                showToast('Generate a receipt image first.');
+                return;
+            }
+
+            const cleanDigits = String(state.targetWhatsApp || '2347080713892').replace(/\D/g, '');
+            const file = new File([state.latestReceiptBlob], state.latestReceiptFilename, { type: 'image/png' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] }) && typeof navigator.share === 'function') {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'GADELA Official Order Receipt'
+                    });
+                    showToast(`Receipt image shared! Send it to +${cleanDigits} DM.`);
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') {
+                        return;
+                    }
+                }
+            }
+
+            downloadReceiptImage();
+            showToast(`Receipt downloaded! Opening +${cleanDigits} WhatsApp DM...`);
+            setTimeout(() => {
+                openSpecificWhatsAppDm(cleanDigits);
+            }, 350);
+        }
+
+        // ==================== OWNER STUDIO RECEIPT SCANNER & PAYMENT TRACKER ====================
+        let activeScannedOrder = null;
+        let qrCameraStream = null;
+        let qrCameraRafId = null;
+
+        function parseReceiptPayload(rawText) {
+            const trimmed = String(rawText || '').trim();
+            if (!trimmed) return null;
+
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (parsed && (parsed.orderId || parsed.items)) {
+                    return parsed;
+                }
+            } catch (e) {
+                // Not raw JSON, try URL query ?receipt=
+            }
+
+            try {
+                const urlObj = new URL(trimmed);
+                const encoded = urlObj.searchParams.get('receipt');
+                if (encoded) {
+                    const decoded = decodeURIComponent(escape(atob(encoded)));
+                    const parsed = JSON.parse(decoded);
+                    if (parsed && (parsed.orderId || parsed.items)) {
+                        return parsed;
+                    }
+                }
+            } catch (e) {
+                // Not a receipt URL
+            }
+
+            const records = loadReceiptRecords();
+            if (records[trimmed]) {
+                return records[trimmed];
+            }
+
+            return {
+                orderId: trimmed,
+                timestamp: 'Scanned Code',
+                customerName: 'Customer on Receipt',
+                customerPhone: '—',
+                deliveryAddress: '—',
+                items: []
+            };
+        }
+
+        function renderScannedReceiptPanel(parsedOrder) {
+            const resultBox = document.getElementById('scanned-receipt-result');
+            if (!resultBox || !parsedOrder) return;
+
+            const records = loadReceiptRecords();
+            const orderId = parsedOrder.orderId || 'GDL-UNKNOWN';
+            const record = records[orderId] || {
+                orderId,
+                paid: false,
+                paidAt: null,
+                useCount: 1,
+                createdAt: parsedOrder.timestamp || 'Just now',
+                customerName: parsedOrder.customerName || 'Customer',
+                customerPhone: parsedOrder.customerPhone || '—',
+                deliveryAddress: parsedOrder.deliveryAddress || '—',
+                items: parsedOrder.items || []
+            };
+
+            record.customerName = parsedOrder.customerName || record.customerName;
+            record.customerPhone = parsedOrder.customerPhone || record.customerPhone;
+            record.deliveryAddress = parsedOrder.deliveryAddress || record.deliveryAddress;
+            if (Array.isArray(parsedOrder.items) && parsedOrder.items.length > 0) {
+                record.items = parsedOrder.items;
+            }
+            records[orderId] = record;
+            saveReceiptRecords(records);
+            activeScannedOrder = record;
+
+            const itemsHtml = (record.items && record.items.length > 0)
+                ? record.items.map((it, idx) => {
+                    const title = it.designTitle ? `${it.category} (${it.designTitle})` : it.category;
+                    return `<li class="text-xs text-zinc-200">${idx + 1}. <strong>${title}</strong> — ${it.color}, Size ${it.size} <span class="text-red-400 font-bold">×${it.qty}</span></li>`;
+                }).join('')
+                : `<li class="text-xs text-zinc-400">Order ID scanned: ${orderId}</li>`;
+
+            const statusBadge = record.paid
+                ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-600/20 text-emerald-300 border border-emerald-500/50">PAID / VERIFIED</span>`
+                : `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-600/20 text-red-300 border border-red-500/50">UNPAID / PENDING</span>`;
+
+            resultBox.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 pb-2.5">
+                    <div>
+                        <span class="text-[11px] uppercase tracking-wider text-zinc-400">Receipt ID</span>
+                        <h5 class="text-sm font-bold text-white">${record.orderId}</h5>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${statusBadge}
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-zinc-900 text-yellow-400 border border-yellow-500/40">
+                            Uses: ${record.useCount || 1}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div><span class="text-zinc-500">Customer:</span> <strong class="text-white">${record.customerName}</strong></div>
+                    <div><span class="text-zinc-500">Phone:</span> <strong class="text-white">${record.customerPhone}</strong></div>
+                    <div class="sm:col-span-2"><span class="text-zinc-500">Address:</span> <span class="text-zinc-200">${record.deliveryAddress}</span></div>
+                </div>
+
+                <div class="bg-zinc-950 border border-zinc-800/80 rounded-lg p-2.5">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-red-400 mb-1">Items on Receipt</p>
+                    <ul class="space-y-1">${itemsHtml}</ul>
+                </div>
+
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <button type="button" onclick="toggleScannedReceiptPaid()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer">
+                        ${record.paid ? 'Mark as Unpaid' : 'Mark Receipt as PAID'}
+                    </button>
+                    <button type="button" onclick="recordRepeatPurchaseUse()" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer">
+                        +1 Repeat Purchase Use
+                    </button>
+                    <button type="button" onclick="loadReceiptItemsIntoBag()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer">
+                        Load Items into Bag
+                    </button>
+                </div>
+            `;
+        }
+
+        function toggleScannedReceiptPaid() {
+            if (!activeScannedOrder) return;
+            const records = loadReceiptRecords();
+            const rec = records[activeScannedOrder.orderId];
+            if (!rec) return;
+            rec.paid = !rec.paid;
+            rec.paidAt = rec.paid ? new Date().toLocaleString() : null;
+            records[activeScannedOrder.orderId] = rec;
+            saveReceiptRecords(records);
+            renderScannedReceiptPanel(rec);
+            showToast(rec.paid ? `Receipt ${rec.orderId} marked as PAID!` : `Receipt ${rec.orderId} marked as UNPAID.`);
+        }
+
+        function recordRepeatPurchaseUse() {
+            if (!activeScannedOrder) return;
+            const records = loadReceiptRecords();
+            const rec = records[activeScannedOrder.orderId];
+            if (!rec) return;
+            rec.useCount = (rec.useCount || 1) + 1;
+            records[activeScannedOrder.orderId] = rec;
+            saveReceiptRecords(records);
+            renderScannedReceiptPanel(rec);
+            showToast(`Recorded repeat purchase #${rec.useCount} on receipt ${rec.orderId}!`);
+        }
+
+        function loadReceiptItemsIntoBag() {
+            if (!activeScannedOrder || !Array.isArray(activeScannedOrder.items) || activeScannedOrder.items.length === 0) {
+                showToast('No clothing items stored on this receipt.');
+                return;
+            }
+            activeScannedOrder.items.forEach(item => {
+                const key = buildItemKey(item.category, item.designTitle, item.color, item.size);
+                const existing = state.selectedItems.find(entry => entry.key === key);
+                if (existing) {
+                    existing.qty += (item.qty || 1);
+                } else {
+                    state.selectedItems.push({
+                        key,
+                        category: item.category,
+                        designTitle: item.designTitle || '',
+                        price: item.price || '',
+                        color: item.color || 'Black',
+                        size: item.size || 'L',
+                        qty: item.qty || 1
+                    });
+                }
+            });
+            renderDesignSlots();
+            renderSelectedItemsBag();
+            updateSummaryDisplay();
+            closeAdminModal();
+            showToast('Loaded receipt items into your bag!');
+        }
+
+        function decodeQrFromImageElement(imgEl) {
+            if (typeof jsQR === 'undefined') return null;
+            const tempCanvas = document.createElement('canvas');
+            const w = imgEl.naturalWidth || imgEl.width;
+            const h = imgEl.naturalHeight || imgEl.height;
+            if (!w || !h) return null;
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(imgEl, 0, 0, w, h);
+            const imageData = ctx.getImageData(0, 0, w, h);
+            const code = jsQR(imageData.data, w, h, { inversionAttempts: 'attemptBoth' });
+            return code ? code.data : null;
+        }
+
+        function handleReceiptImageScan(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const decoded = decodeQrFromImageElement(img);
+                    if (decoded) {
+                        document.getElementById('manual-receipt-input').value = decoded;
+                        const parsed = parseReceiptPayload(decoded);
+                        renderScannedReceiptPanel(parsed);
+                        showToast('Receipt QR code scanned!');
+                    } else {
+                        showToast('Could not read QR code in that image. Try a clearer photo or paste Order ID.');
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function processManualReceiptInput() {
+            const val = document.getElementById('manual-receipt-input').value.trim();
+            if (!val) {
+                showToast('Paste a receipt QR code or Order ID first.');
+                return;
+            }
+            const parsed = parseReceiptPayload(val);
+            renderScannedReceiptPanel(parsed);
+        }
+
+        async function startLiveQrCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof jsQR === 'undefined') {
+                showToast('Camera scanning is not supported here. Upload the receipt image instead.');
+                return;
+            }
+
+            stopLiveQrCamera();
+            const box = document.getElementById('qr-camera-box');
+            const video = document.getElementById('qr-camera-video');
+            const canvas = document.getElementById('qr-camera-canvas');
+            const statusEl = document.getElementById('qr-camera-status');
+
+            try {
+                qrCameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+                video.srcObject = qrCameraStream;
+                box.classList.remove('hidden');
+                await video.play();
+                statusEl.textContent = 'Scanning for receipt QR code...';
+
+                const tick = () => {
+                    if (!qrCameraStream) return;
+                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const code = jsQR(imgData.data, canvas.width, canvas.height, {
+                            inversionAttempts: 'attemptBoth'
+                        });
+                        if (code && code.data) {
+                            stopLiveQrCamera();
+                            document.getElementById('manual-receipt-input').value = code.data;
+                            renderScannedReceiptPanel(parseReceiptPayload(code.data));
+                            showToast('QR code scanned via camera!');
+                            return;
+                        }
+                    }
+                    qrCameraRafId = requestAnimationFrame(tick);
+                };
+                qrCameraRafId = requestAnimationFrame(tick);
+            } catch (err) {
+                showToast('Camera permission denied or unavailable.');
+            }
+        }
+
+        function stopLiveQrCamera() {
+            if (qrCameraRafId) {
+                cancelAnimationFrame(qrCameraRafId);
+                qrCameraRafId = null;
+            }
+            if (qrCameraStream) {
+                qrCameraStream.getTracks().forEach(t => t.stop());
+                qrCameraStream = null;
+            }
+            const box = document.getElementById('qr-camera-box');
+            if (box) box.classList.add('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3500);
+        }
+
+        function copyTextSafe(text, successMsg) {
+            const helper = document.createElement('textarea');
+            helper.value = text;
+            helper.setAttribute('readonly', '');
+            helper.style.position = 'fixed';
+            helper.style.opacity = '0';
+            document.body.appendChild(helper);
+            helper.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg);
+            } catch (err) {
+                showToast('Please manually select and copy the text.');
+            }
+            document.body.removeChild(helper);
+        }
+
+        // ==================== OWNER STUDIO / ADMIN FUNCTIONS ====================
+        function openAdminModal() {
+            document.getElementById('admin-modal').classList.remove('hidden');
+            document.getElementById('admin-pin-input').focus();
+        }
+
+        function closeAdminModal() {
+            stopLiveQrCamera();
+            document.getElementById('admin-modal').classList.add('hidden');
+        }
+
+        function verifyAdminPin() {
+            const inputPin = document.getElementById('admin-pin-input').value.trim();
+            const savedPin = localStorage.getItem(PIN_STORAGE_KEY) || '2026';
+            const errorEl = document.getElementById('pin-error-msg');
+
+            if (inputPin === savedPin) {
+                errorEl.classList.add('hidden');
+                document.getElementById('admin-lock-screen').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                renderAdminLists();
+                updateJsonExportBox();
+            } else {
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function switchAdminTab(tabName) {
+            if (tabName !== 'scanner') {
+                stopLiveQrCamera();
+            }
+            ['collections', 'branding', 'scanner', 'publish'].forEach(t => {
+                document.getElementById(`admin-panel-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`admintab-${t}`);
+                btn.classList.remove('bg-yellow-400', 'text-black');
+                btn.classList.add('bg-zinc-900', 'text-zinc-300', 'border', 'border-zinc-800');
+            });
+
+            document.getElementById(`admin-panel-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`admintab-${tabName}`);
+            activeBtn.classList.remove('bg-zinc-900', 'text-zinc-300', 'border', 'border-zinc-800');
+            activeBtn.classList.add('bg-yellow-400', 'text-black');
+
+            if (tabName === 'publish') updateJsonExportBox();
+        }
+
+        function readCompressedImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const maxDim = 800;
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) {
+                                h = Math.round((h * maxDim) / w);
+                                w = maxDim;
+                            } else {
+                                w = Math.round((w * maxDim) / h);
+                                h = maxDim;
+                            }
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.82));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function readVideoDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const maxBytes = 8 * 1024 * 1024;
+                if (file.size > maxBytes) {
+                    reject(new Error('Video file is larger than 8MB. Please use a shorter clip or paste a hosted .mp4 URL.'));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => reject(new Error('Could not read video file.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function addCollectionItem() {
+            const category = document.getElementById('new-item-category').value;
+            const title = document.getElementById('new-item-title').value.trim() || `${category} Drop #${(storeData.collections[category]?.length || 0) + 1}`;
+            const price = document.getElementById('new-item-price').value.trim();
+            const urlInput = document.getElementById('new-item-url').value.trim();
+            const fileInput = document.getElementById('new-item-file');
+
+            let finalImage = urlInput;
+            if (!finalImage && fileInput.files && fileInput.files[0]) {
+                finalImage = await readCompressedImage(fileInput.files[0]);
+            }
+
+            if (!finalImage) {
+                showToast('Please paste an image URL or choose a photo file first.');
+                return;
+            }
+
+            storeData.collections[category].push({
+                id: Date.now(),
+                title,
+                price,
+                image: finalImage
+            });
+
+            document.getElementById('new-item-title').value = '';
+            document.getElementById('new-item-price').value = '';
+            document.getElementById('new-item-url').value = '';
+            fileInput.value = '';
+
+            saveStoreLocally();
+            selectCategory(category);
+            showToast(`Added "${title}" to ${category}!`);
+        }
+
+        function removeCollectionItem(category, id) {
+            storeData.collections[category] = storeData.collections[category].filter(item => item.id !== id);
+            saveStoreLocally();
+            showToast('Item removed from collection.');
+        }
+
+        async function saveBrandLogo() {
+            const urlInput = document.getElementById('admin-logo-url').value.trim();
+            const fileInput = document.getElementById('admin-logo-file');
+
+            let finalLogo = urlInput;
+            if (!finalLogo && fileInput.files && fileInput.files[0]) {
+                finalLogo = await readCompressedImage(fileInput.files[0]);
+            }
+
+            if (!finalLogo) {
+                showToast('Enter a logo URL or select a logo image file.');
+                return;
+            }
+
+            storeData.logoUrl = finalLogo;
+            document.getElementById('admin-logo-url').value = '';
+            fileInput.value = '';
+            saveStoreLocally();
+            showToast('GADELA Logo updated!');
+        }
+
+        function clearBrandLogo() {
+            storeData.logoUrl = DEFAULT_GADELA_RED_BLACK_LOGO;
+            saveStoreLocally();
+            showToast('Reset to default red & black GADELA logo.');
+        }
+
+        async function addShowcaseItem() {
+            const caption = document.getElementById('new-showcase-caption').value.trim() || 'GADELA Money Hunter';
+            const urlInput = document.getElementById('new-showcase-url').value.trim();
+            const fileInput = document.getElementById('new-showcase-file');
+
+            let finalMedia = urlInput;
+            let mediaType = 'image';
+
+            if (urlInput) {
+                mediaType = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(urlInput) ? 'video' : 'image';
+            } else if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                if (file.type.startsWith('video/')) {
+                    try {
+                        finalMedia = await readVideoDataUrl(file);
+                        mediaType = 'video';
+                    } catch (err) {
+                        showToast(err.message);
+                        return;
+                    }
+                } else {
+                    finalMedia = await readCompressedImage(file);
+                    mediaType = 'image';
+                }
+            }
+
+            if (!finalMedia) {
+                showToast('Enter a photo/video URL or choose a file for Showcase.');
+                return;
+            }
+
+            storeData.showcase.push({
+                id: Date.now(),
+                caption,
+                mediaType,
+                mediaUrl: finalMedia,
+                image: finalMedia
+            });
+
+            document.getElementById('new-showcase-caption').value = '';
+            document.getElementById('new-showcase-url').value = '';
+            fileInput.value = '';
+            saveStoreLocally();
+            showToast(`${mediaType === 'video' ? 'Video' : 'Photo'} added to GADELA Showcase!`);
+        }
+
+        function removeShowcaseItem(id) {
+            storeData.showcase = storeData.showcase.filter(item => item.id !== id);
+            saveStoreLocally();
+            showToast('Showcase item removed.');
+        }
+
+        function renderAdminLists() {
+            const itemsList = document.getElementById('admin-items-list');
+            itemsList.innerHTML = '';
+
+            let hasAny = false;
+            Object.keys(storeData.collections).forEach(cat => {
+                storeData.collections[cat].forEach(item => {
+                    hasAny = true;
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 rounded-xl p-2.5';
+                    row.innerHTML = `
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <img src="${item.image}" class="w-10 h-10 rounded-lg object-cover bg-zinc-950 shrink-0">
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-white truncate">${item.title}</p>
+                                <p class="text-[11px] text-zinc-400">${cat} ${item.price ? '• ' + item.price : ''}</p>
+                            </div>
+                        </div>
+                        <button onclick="removeCollectionItem('${cat}', ${item.id})" class="text-zinc-500 hover:text-red-400 p-2 cursor-pointer" title="Delete">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    `;
+                    itemsList.appendChild(row);
+                });
+            });
+
+            if (!hasAny) {
+                itemsList.innerHTML = '<p class="text-xs text-zinc-500 col-span-2 py-3 text-center">No designs uploaded yet. Use the form above to add your first item.</p>';
+            }
+
+            const showcaseList = document.getElementById('admin-showcase-list');
+            showcaseList.innerHTML = '';
+            (storeData.showcase || []).forEach(entry => {
+                const src = entry.mediaUrl || entry.image || '';
+                const isVideo = isVideoEntry(entry);
+                const thumbHtml = isVideo
+                    ? `<div class="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center shrink-0 text-yellow-400"><i class="fa-solid fa-video text-xs"></i></div>`
+                    : `<img src="${src}" class="w-9 h-9 rounded-lg object-cover shrink-0">`;
+
+                const card = document.createElement('div');
+                card.className = 'flex items-center justify-between gap-2 bg-zinc-950 border border-zinc-800 rounded-xl p-2';
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 min-w-0">
+                        ${thumbHtml}
+                        <span class="text-xs text-zinc-300 truncate">${entry.caption}</span>
+                    </div>
+                    <button onclick="removeShowcaseItem(${entry.id})" class="text-zinc-500 hover:text-red-400 p-1.5 cursor-pointer">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                `;
+                showcaseList.appendChild(card);
+            });
+        }
+
+        function updateJsonExportBox() {
+            const box = document.getElementById('json-export-box');
+            if (box) {
+                box.value = JSON.stringify(storeData, null, 2);
+            }
+        }
+
+        function exportCatalogJSON() {
+            updateJsonExportBox();
+            copyTextSafe(JSON.stringify(storeData, null, 2), 'Store JSON copied! Paste into gadela-catalog.json on GitHub.');
+        }
+
+        function downloadCatalogJSON() {
+            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(storeData, null, 2));
+            const a = document.createElement('a');
+            a.setAttribute('href', dataStr);
+            a.setAttribute('download', 'gadela-catalog.json');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('Downloaded gadela-catalog.json!');
+        }
+
+        function updateAdminPin() {
+            const newPin = document.getElementById('new-pin-input').value.trim();
+            if (newPin.length < 4) {
+                showToast('Please enter at least 4 characters for your PIN.');
+                return;
+            }
+            localStorage.setItem(PIN_STORAGE_KEY, newPin);
+            document.getElementById('new-pin-input').value = '';
+            showToast('Owner PIN updated successfully!');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            trackStoreVisitor();
+            initializeStoreData();
+            updateReceiptModalDmTarget(state.targetWhatsApp);
+        });
+    </script>
+</body>
+</html>
