@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- SEO Meta Tags so Google indexes GADELA properly after GitHub Pages launch -->
+    <!-- SEO Meta Tags for Search Engine Indexing -->
     <title>GADELA | Money Hunter — Official Streetwear</title>
     <meta name="description" content="GADELA means Money Hunter in Ewé. Official streetwear collection: T-Shirts, Hoodies, Pants, and Shoes. Order directly via WhatsApp.">
     <meta name="keywords" content="GADELA, Money Hunter, Streetwear, T-Shirt, Hoodie, Pants, Shoe, Fashion">
@@ -20,6 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
+    <!-- Tailwind Theme Tokens -->
     <script>
         tailwind.config = {
             theme: {
@@ -45,13 +46,19 @@
 </head>
 <body class="bg-brand-black text-zinc-100 font-sans antialiased selection:bg-yellow-500 selection:text-black min-h-screen flex flex-col">
 
-    <!-- ==================== 1. TOAST NOTIFICATION ==================== -->
+    <!-- ===================================================================== -->
+    <!-- SECTION 1: GLOBAL TOAST NOTIFICATION                                  -->
+    <!-- ===================================================================== -->
     <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-zinc-900 border border-yellow-500/50 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm">
         <i class="fa-solid fa-circle-check text-yellow-400 text-lg"></i>
         <p id="toast-message" class="text-sm font-medium">Action completed.</p>
     </div>
 
-    <!-- ==================== 2. CLOTHING QUICK-VIEW MODAL ==================== -->
+    <!-- ===================================================================== -->
+    <!-- SECTION 2: MODALS (QUICK-VIEW, RECEIPT, SHOWCASE, OWNER STUDIO)       -->
+    <!-- ===================================================================== -->
+
+    <!-- 2A. Clothing Quick-View Modal with Live Garment Color Preview -->
     <div id="product-view-modal" onclick="if(event.target===this) closeProductViewModal()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden my-auto flex flex-col">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800 bg-zinc-900/90">
@@ -65,7 +72,6 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5">
-                <!-- Dynamic Garment Color Backdrop + Filtered Artwork Container -->
                 <div id="pv-preview-frame" class="aspect-[4/5] rounded-xl overflow-hidden bg-black border border-zinc-800 flex items-center justify-center relative transition-colors duration-300">
                     <img id="pv-image" src="" alt="Product Preview" class="w-full h-full object-cover transition-all duration-300">
                     <div id="pv-color-tint" class="absolute inset-0 pointer-events-none transition-all duration-300"></div>
@@ -107,7 +113,7 @@
         </div>
     </div>
 
-    <!-- ==================== 3. BLACK & RED RECEIPT IMAGE MODAL ==================== -->
+    <!-- 2B. Black & Red Receipt Image Modal -->
     <div id="receipt-modal" onclick="if(event.target===this) closeReceiptModal()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-zinc-950 border-2 border-red-600/80 rounded-2xl w-full max-w-lg shadow-[0_0_50px_rgba(220,38,38,0.25)] overflow-hidden my-auto flex flex-col">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-red-900/60 bg-gradient-to-r from-black via-red-950/40 to-black">
@@ -158,7 +164,7 @@
         </div>
     </div>
 
-    <!-- ==================== 4. SHOWCASE LIGHTBOX MODAL ==================== -->
+    <!-- 2C. Showcase Lightbox Modal -->
     <div id="showcase-review-modal" onclick="if(event.target===this) closeShowcaseReview()" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
         <div class="relative w-full max-w-3xl bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800 bg-zinc-900/90">
@@ -186,7 +192,7 @@
         </div>
     </div>
 
-    <!-- ==================== 5. OWNER ADMIN STUDIO MODAL ==================== -->
+    <!-- 2D. Owner Admin Studio Modal -->
     <div id="admin-modal" onclick="if(event.target===this) closeAdminModal()" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
             <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/80">
@@ -438,10 +444,12 @@
         </div>
     </div>
 
-    <!-- ==================== 6. MAIN PAGE CONTAINER ==================== -->
+    <!-- ===================================================================== -->
+    <!-- SECTION 3: MAIN STOREFRONT LAYOUT                                     -->
+    <!-- ===================================================================== -->
     <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
 
-        <!-- Top Brand Header -->
+        <!-- 3A. Top Brand Header & Visitor Counter -->
         <header class="grid grid-cols-1 lg:grid-cols-12 gap-4 border border-zinc-800 bg-brand-card rounded-2xl p-4 sm:p-6 mb-6 shadow-xl">
             <div class="lg:col-span-3 flex items-center justify-center">
                 <div id="logo-slot" class="w-full h-28 sm:h-32 border border-red-900/50 rounded-xl flex flex-col items-center justify-center text-center p-2 transition-colors relative overflow-hidden group bg-black">
@@ -470,10 +478,10 @@
             </div>
         </header>
 
-        <!-- Main Body Columns -->
+        <!-- 3B. Main Two-Column Storefront Content -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            <!-- Left Column: Collections, Direct WhatsApp Contact, Showcase -->
+            <!-- Left Column: Collections, Direct WhatsApp DM, Showcase -->
             <div class="lg:col-span-7 flex flex-col gap-6">
 
                 <!-- Home / Multi-Select Collections -->
@@ -712,7 +720,7 @@
                                 </button>
                             </div>
                             <p class="text-[11px] text-zinc-400 leading-relaxed">
-                                Orders are generated as a <strong class="text-red-400">Black & Red GADELA Receipt Image</strong> with the official red-and-black GADELA logo and scannable white QR code—no plain text messages.
+                                Orders are generated as a <strong class="text-red-400">Black & Red GADELA Receipt Image</strong> with the official red-and-black GADELA logo and scannable white QR code.
                             </p>
                         </div>
                     </form>
@@ -738,7 +746,9 @@
         </main>
     </div>
 
-    <!-- ==================== 7. FOOTER ==================== -->
+    <!-- ===================================================================== -->
+    <!-- SECTION 4: FOOTER                                                     -->
+    <!-- ===================================================================== -->
     <footer class="border-t border-zinc-900 py-5 px-4 text-center text-xs text-zinc-500 mt-6">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <p>&copy; <span id="year"></span> GADELA — Money Hunter. All Rights Reserved.</p>
@@ -754,7 +764,199 @@
         </div>
     </footer>
 
-    <!-- ==================== 8. APPLICATION SCRIPT ==================== -->
+    <!-- ===================================================================== -->
+    <!-- SECTION 5: CLOUD SYNC MODULE (REAL-TIME RECEIPTS & VISITORS)          -->
+    <!-- ===================================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const CLOUD_APP_ID = (typeof __app_id !== 'undefined' && __app_id) ? __app_id : 'gadela-money-hunter-store';
+        const hasFirebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config);
+
+        window.gadelaCloud = {
+            enabled: false,
+            db: null,
+            user: null,
+            appId: CLOUD_APP_ID,
+            recordsUnsub: null,
+            visitorUnsub: null,
+            syncOrderReceipt,
+            updateReceiptStatusCloud,
+            lookupReceiptCloud
+        };
+
+        function getReceiptsCollectionRef() {
+            return collection(window.gadelaCloud.db, 'artifacts', window.gadelaCloud.appId, 'public', 'data', 'gadela_receipts');
+        }
+
+        function getReceiptDocRef(orderId) {
+            return doc(window.gadelaCloud.db, 'artifacts', window.gadelaCloud.appId, 'public', 'data', 'gadela_receipts', String(orderId));
+        }
+
+        function getVisitorDocRef() {
+            return doc(window.gadelaCloud.db, 'artifacts', window.gadelaCloud.appId, 'public', 'data', 'store_metrics', 'visitors');
+        }
+
+        async function syncOrderReceipt(orderPayload) {
+            if (!window.gadelaCloud.enabled || !window.gadelaCloud.user || !orderPayload?.orderId) return;
+            try {
+                const ref = getReceiptDocRef(orderPayload.orderId);
+                const snap = await getDoc(ref);
+                const existing = snap.exists() ? snap.data() : {};
+
+                const mergedRecord = {
+                    orderId: orderPayload.orderId,
+                    paid: Boolean(existing.paid),
+                    paidAt: existing.paidAt || null,
+                    useCount: Number(existing.useCount || 1),
+                    createdAt: existing.createdAt || orderPayload.timestamp || new Date().toLocaleString(),
+                    customerName: orderPayload.customerName || existing.customerName || 'Customer',
+                    customerPhone: orderPayload.customerPhone || existing.customerPhone || '—',
+                    deliveryAddress: orderPayload.deliveryAddress || existing.deliveryAddress || '—',
+                    items: Array.isArray(orderPayload.items) && orderPayload.items.length > 0
+                        ? orderPayload.items
+                        : (existing.items || []),
+                    updatedAt: Date.now()
+                };
+
+                await setDoc(ref, mergedRecord, { merge: true });
+                if (typeof window.mergeCloudReceiptRecord === 'function') {
+                    window.mergeCloudReceiptRecord(mergedRecord);
+                }
+            } catch (err) {
+                console.warn('Cloud receipt sync failed:', err);
+            }
+        }
+
+        async function updateReceiptStatusCloud(record) {
+            if (!window.gadelaCloud.enabled || !window.gadelaCloud.user || !record?.orderId) return;
+            try {
+                const ref = getReceiptDocRef(record.orderId);
+                await setDoc(ref, {
+                    orderId: record.orderId,
+                    paid: Boolean(record.paid),
+                    paidAt: record.paidAt || null,
+                    useCount: Number(record.useCount || 1),
+                    createdAt: record.createdAt || new Date().toLocaleString(),
+                    customerName: record.customerName || 'Customer',
+                    customerPhone: record.customerPhone || '—',
+                    deliveryAddress: record.deliveryAddress || '—',
+                    items: record.items || [],
+                    updatedAt: Date.now()
+                }, { merge: true });
+            } catch (err) {
+                console.warn('Cloud receipt status update failed:', err);
+            }
+        }
+
+        async function lookupReceiptCloud(orderId) {
+            if (!window.gadelaCloud.enabled || !window.gadelaCloud.user || !orderId) return null;
+            try {
+                const snap = await getDoc(getReceiptDocRef(orderId));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (typeof window.mergeCloudReceiptRecord === 'function') {
+                        window.mergeCloudReceiptRecord(data);
+                    }
+                    return data;
+                }
+            } catch (err) {
+                console.warn('Cloud receipt lookup failed:', err);
+            }
+            return null;
+        }
+
+        function startCloudSubscriptions() {
+            if (!window.gadelaCloud.enabled || !window.gadelaCloud.user) return;
+
+            if (!window.gadelaCloud.recordsUnsub) {
+                window.gadelaCloud.recordsUnsub = onSnapshot(
+                    getReceiptsCollectionRef(),
+                    (snapshot) => {
+                        const cloudMap = {};
+                        snapshot.forEach((docSnap) => {
+                            const d = docSnap.data();
+                            if (d && d.orderId) {
+                                cloudMap[d.orderId] = d;
+                            }
+                        });
+                        if (typeof window.applyCloudReceiptsSnapshot === 'function') {
+                            window.applyCloudReceiptsSnapshot(cloudMap);
+                        }
+                    },
+                    (err) => {
+                        console.warn('Receipts subscription error:', err);
+                    }
+                );
+            }
+
+            if (!window.gadelaCloud.visitorUnsub) {
+                window.gadelaCloud.visitorUnsub = onSnapshot(
+                    getVisitorDocRef(),
+                    (snap) => {
+                        if (snap.exists()) {
+                            const count = Number(snap.data()?.count || 0);
+                            if (count > 0 && typeof window.updateVisitorBadges === 'function') {
+                                window.updateVisitorBadges(count);
+                            }
+                        }
+                    },
+                    (err) => {
+                        console.warn('Visitor subscription error:', err);
+                    }
+                );
+            }
+        }
+
+        async function incrementCloudVisitorCount() {
+            if (!window.gadelaCloud.enabled || !window.gadelaCloud.user) return;
+            try {
+                const visitorRef = getVisitorDocRef();
+                const snap = await getDoc(visitorRef);
+                const currentCount = snap.exists() ? Number(snap.data()?.count || 0) : 0;
+                const nextCount = currentCount + 1;
+                await setDoc(visitorRef, { count: nextCount, updatedAt: Date.now() }, { merge: true });
+                if (typeof window.updateVisitorBadges === 'function') {
+                    window.updateVisitorBadges(nextCount);
+                }
+            } catch (err) {
+                console.warn('Cloud visitor increment failed:', err);
+            }
+        }
+
+        async function initGadelaCloud() {
+            if (!hasFirebaseConfig) return;
+            try {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+
+                const cred = (typeof __initial_auth_token !== 'undefined' && __initial_auth_token)
+                    ? await signInWithCustomToken(auth, __initial_auth_token)
+                    : await signInAnonymously(auth);
+
+                window.gadelaCloud.db = db;
+                window.gadelaCloud.user = cred.user;
+                window.gadelaCloud.enabled = true;
+
+                startCloudSubscriptions();
+                await incrementCloudVisitorCount();
+            } catch (err) {
+                console.warn('Cloud init skipped or failed:', err);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initGadelaCloud();
+        });
+    </script>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 6: CORE STOREFRONT & OWNER STUDIO LOGIC                       -->
+    <!-- ===================================================================== -->
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -920,6 +1122,7 @@
             if (h) h.textContent = formatted;
             if (f) f.textContent = formatted;
         }
+        window.updateVisitorBadges = updateVisitorBadges;
 
         async function trackStoreVisitor() {
             let localCount = 1;
@@ -931,6 +1134,10 @@
                 localCount = 1;
             }
             updateVisitorBadges(localCount);
+
+            if (window.gadelaCloud?.enabled) {
+                return;
+            }
 
             try {
                 const res = await fetch('https://api.counterapi.dev/v1/gadela-money-hunter-store/visits/up');
@@ -1673,6 +1880,41 @@
             }
         }
 
+        function mergeCloudReceiptRecord(cloudRecord) {
+            if (!cloudRecord || !cloudRecord.orderId) return;
+            const records = loadReceiptRecords();
+            const existing = records[cloudRecord.orderId] || {};
+            records[cloudRecord.orderId] = {
+                ...existing,
+                ...cloudRecord
+            };
+            saveReceiptRecords(records);
+
+            if (activeScannedOrder && activeScannedOrder.orderId === cloudRecord.orderId) {
+                activeScannedOrder = records[cloudRecord.orderId];
+                renderScannedReceiptPanel(activeScannedOrder, { skipCloudWrite: true });
+            }
+        }
+        window.mergeCloudReceiptRecord = mergeCloudReceiptRecord;
+
+        function applyCloudReceiptsSnapshot(cloudMap) {
+            if (!cloudMap || typeof cloudMap !== 'object') return;
+            const records = loadReceiptRecords();
+            Object.keys(cloudMap).forEach((orderId) => {
+                records[orderId] = {
+                    ...(records[orderId] || {}),
+                    ...cloudMap[orderId]
+                };
+            });
+            saveReceiptRecords(records);
+
+            if (activeScannedOrder && records[activeScannedOrder.orderId]) {
+                activeScannedOrder = records[activeScannedOrder.orderId];
+                renderScannedReceiptPanel(activeScannedOrder, { skipCloudWrite: true });
+            }
+        }
+        window.applyCloudReceiptsSnapshot = applyCloudReceiptsSnapshot;
+
         function registerIssuedReceipt(orderPayload) {
             const records = loadReceiptRecords();
             const existing = records[orderPayload.orderId] || {
@@ -1692,6 +1934,9 @@
             existing.items = orderPayload.items;
             records[orderPayload.orderId] = existing;
             saveReceiptRecords(records);
+            if (window.gadelaCloud?.syncOrderReceipt) {
+                window.gadelaCloud.syncOrderReceipt(existing);
+            }
             return existing;
         }
 
@@ -1776,7 +2021,6 @@
                 const imgEl = tempDiv.querySelector('img');
                 const qrSource = canvasEl || (imgEl && imgEl.complete ? imgEl : null);
 
-                // Clone into a dedicated canvas before detaching so drawing is instant and safe
                 if (qrSource) {
                     const outCanvas = document.createElement('canvas');
                     outCanvas.width = 240;
@@ -1832,7 +2076,6 @@
             canvas.height = height;
             const ctx = canvas.getContext('2d');
 
-            // Black Background + Crimson Glow
             ctx.fillStyle = '#070709';
             ctx.fillRect(0, 0, width, height);
 
@@ -1842,7 +2085,6 @@
             ctx.fillStyle = glow;
             ctx.fillRect(0, 0, width, height);
 
-            // Outer & Inner Red Borders
             ctx.strokeStyle = '#dc2626';
             ctx.lineWidth = 6;
             drawRoundedRect(ctx, 24, 24, width - 48, height - 48, 28);
@@ -1853,7 +2095,6 @@
             drawRoundedRect(ctx, 36, 36, width - 72, height - 72, 22);
             ctx.stroke();
 
-            // Top Banner
             ctx.fillStyle = '#991b1b';
             drawRoundedRect(ctx, 56, 56, width - 112, 46, 12);
             ctx.fill();
@@ -1863,7 +2104,6 @@
             ctx.textAlign = 'center';
             ctx.fillText('OFFICIAL ORDER RECEIPT', width / 2, 85);
 
-            // Red & Black GADELA Logo Box
             const logoBoxX = 64;
             const logoBoxY = 126;
             const logoBoxSize = 156;
@@ -1887,7 +2127,6 @@
                 ctx.drawImage(logoImg, drawX, drawY, drawW, drawH);
             }
 
-            // Brand Title & Metadata
             ctx.textAlign = 'left';
             ctx.fillStyle = '#ffffff';
             ctx.font = '900 54px Syne, Arial, sans-serif';
@@ -1901,7 +2140,6 @@
             ctx.font = '500 16px Inter, Arial, sans-serif';
             ctx.fillText(`Order ID: ${orderData.orderId}   |   ${orderData.timestamp}`, 246, 248);
 
-            // Divider Line
             ctx.strokeStyle = 'rgba(220, 38, 38, 0.45)';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -1909,7 +2147,6 @@
             ctx.lineTo(width - 64, 304);
             ctx.stroke();
 
-            // Ordered Items Box
             const itemsBoxY = 328;
             ctx.fillStyle = 'rgba(24, 6, 8, 0.85)';
             drawRoundedRect(ctx, 64, itemsBoxY, width - 128, itemsSectionHeight, 18);
@@ -1918,7 +2155,6 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Left Red Accent Bar inside Items Box
             ctx.fillStyle = '#dc2626';
             drawRoundedRect(ctx, 78, itemsBoxY + 18, 6, itemsSectionHeight - 36, 3);
             ctx.fill();
@@ -1963,7 +2199,6 @@
                 ctx.textAlign = 'left';
             }
 
-            // Customer & Delivery Details Box
             const custBoxY = itemsBoxY + itemsSectionHeight + 24;
             ctx.fillStyle = 'rgba(24, 6, 8, 0.85)';
             drawRoundedRect(ctx, 64, custBoxY, width - 128, customerSectionHeight, 18);
@@ -2001,7 +2236,6 @@
                 addrY += 27;
             });
 
-            // QR Code & Re-Use Box with High-Contrast White QR on Solid Black
             const scanY = custBoxY + customerSectionHeight + 24;
             ctx.fillStyle = 'rgba(24, 6, 8, 0.9)';
             drawRoundedRect(ctx, 64, scanY, width - 128, qrSectionHeight, 18);
@@ -2018,7 +2252,6 @@
             const qrX = 96;
             const qrY = scanY + Math.round((qrSectionHeight - qrBoxSize) / 2);
 
-            // Solid black square + quiet zone border so white QR modules stand out clearly
             ctx.fillStyle = '#000000';
             drawRoundedRect(ctx, qrX, qrY, qrBoxSize, qrBoxSize, 14);
             ctx.fill();
@@ -2026,7 +2259,6 @@
             ctx.lineWidth = 2.5;
             ctx.stroke();
 
-            // Keep QR payload short so modules stay large and easy for cameras/jsQR to read
             const compactQrPayload = JSON.stringify({
                 id: orderData.orderId,
                 n: String(orderData.customerName || '').slice(0, 36),
@@ -2049,7 +2281,6 @@
             ctx.font = '700 19px Inter, Arial, sans-serif';
             ctx.fillText(`Order Code: ${orderData.orderId}`, scanTextX, scanY + 124);
 
-            // Tamper-resistant, large centered green PAID stamp across the middle of the receipt
             if (orderData.isPaid) {
                 ctx.save();
                 const stampX = width / 2;
@@ -2057,7 +2288,6 @@
                 ctx.translate(stampX, stampY);
                 ctx.rotate(-0.26);
 
-                // Subtle diagonal security lines across the stamp so it cannot be cleanly erased
                 ctx.strokeStyle = 'rgba(34, 197, 94, 0.28)';
                 ctx.lineWidth = 2;
                 for (let sx = -290; sx <= 290; sx += 26) {
@@ -2067,7 +2297,6 @@
                     ctx.stroke();
                 }
 
-                // Translucent green stamp seal overlapping items & customer details
                 ctx.fillStyle = 'rgba(22, 163, 74, 0.22)';
                 drawRoundedRect(ctx, -270, -96, 540, 192, 26);
                 ctx.fill();
@@ -2093,7 +2322,6 @@
                 ctx.restore();
             }
 
-            // Footer Bar
             const footerY = scanY + qrSectionHeight + 22;
             ctx.fillStyle = '#ef4444';
             ctx.font = 'bold 20px Inter, Arial, sans-serif';
@@ -2304,7 +2532,7 @@
             };
         }
 
-        function renderScannedReceiptPanel(parsedOrder) {
+        function renderScannedReceiptPanel(parsedOrder, options = {}) {
             const resultBox = document.getElementById('scanned-receipt-result');
             if (!resultBox || !parsedOrder) return;
 
@@ -2328,9 +2556,27 @@
             if (Array.isArray(parsedOrder.items) && parsedOrder.items.length > 0) {
                 record.items = parsedOrder.items;
             }
+            if (typeof parsedOrder.paid === 'boolean') {
+                record.paid = parsedOrder.paid;
+            }
+            if (typeof parsedOrder.useCount === 'number') {
+                record.useCount = parsedOrder.useCount;
+            }
             records[orderId] = record;
             saveReceiptRecords(records);
             activeScannedOrder = record;
+
+            if (!options.skipCloudWrite && window.gadelaCloud?.enabled && window.gadelaCloud?.lookupReceiptCloud) {
+                window.gadelaCloud.lookupReceiptCloud(orderId).then((cloudRec) => {
+                    if (cloudRec && activeScannedOrder?.orderId === orderId) {
+                        const updatedRecords = loadReceiptRecords();
+                        updatedRecords[orderId] = { ...updatedRecords[orderId], ...cloudRec };
+                        saveReceiptRecords(updatedRecords);
+                        activeScannedOrder = updatedRecords[orderId];
+                        renderScannedReceiptPanel(activeScannedOrder, { skipCloudWrite: true });
+                    }
+                });
+            }
 
             const itemsHtml = (record.items && record.items.length > 0)
                 ? record.items.map((it, idx) => {
@@ -2395,7 +2641,10 @@
             rec.paidAt = rec.paid ? new Date().toLocaleString() : null;
             records[activeScannedOrder.orderId] = rec;
             saveReceiptRecords(records);
-            renderScannedReceiptPanel(rec);
+            if (window.gadelaCloud?.updateReceiptStatusCloud) {
+                window.gadelaCloud.updateReceiptStatusCloud(rec);
+            }
+            renderScannedReceiptPanel(rec, { skipCloudWrite: true });
             showToast(rec.paid ? `Receipt ${rec.orderId} marked as PAID!` : `Receipt ${rec.orderId} marked as UNPAID.`);
         }
 
@@ -2417,7 +2666,10 @@
             });
             records[rec.orderId] = rec;
             saveReceiptRecords(records);
-            renderScannedReceiptPanel(rec);
+            if (window.gadelaCloud?.updateReceiptStatusCloud) {
+                window.gadelaCloud.updateReceiptStatusCloud(rec);
+            }
+            renderScannedReceiptPanel(rec, { skipCloudWrite: true });
 
             const items = Array.isArray(rec.items) ? rec.items : [];
             const totalQty = items.reduce((sum, item) => sum + (item.qty || 1), 0);
@@ -2461,7 +2713,10 @@
             rec.useCount = (rec.useCount || 1) + 1;
             records[activeScannedOrder.orderId] = rec;
             saveReceiptRecords(records);
-            renderScannedReceiptPanel(rec);
+            if (window.gadelaCloud?.updateReceiptStatusCloud) {
+                window.gadelaCloud.updateReceiptStatusCloud(rec);
+            }
+            renderScannedReceiptPanel(rec, { skipCloudWrite: true });
             showToast(`Recorded repeat purchase #${rec.useCount} on receipt ${rec.orderId}!`);
         }
 
