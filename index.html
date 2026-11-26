@@ -65,8 +65,14 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5">
-                <div class="aspect-[4/5] rounded-xl overflow-hidden bg-black border border-zinc-800 flex items-center justify-center">
-                    <img id="pv-image" src="" alt="Product Preview" class="w-full h-full object-cover">
+                <!-- Dynamic Garment Color Backdrop + Filtered Artwork Container -->
+                <div id="pv-preview-frame" class="aspect-[4/5] rounded-xl overflow-hidden bg-black border border-zinc-800 flex items-center justify-center relative transition-colors duration-300">
+                    <img id="pv-image" src="" alt="Product Preview" class="w-full h-full object-cover transition-all duration-300">
+                    <div id="pv-color-tint" class="absolute inset-0 pointer-events-none transition-all duration-300"></div>
+                    <span id="pv-color-pill" class="absolute bottom-2.5 left-2.5 z-10 inline-flex items-center gap-1.5 bg-black/80 border border-zinc-700/90 px-2.5 py-1 rounded-full text-[11px] font-semibold text-white backdrop-blur-sm">
+                        <span id="pv-color-dot" class="w-2.5 h-2.5 rounded-full inline-block bg-black border border-zinc-500"></span>
+                        <span id="pv-color-pill-text">Black</span>
+                    </span>
                 </div>
 
                 <div class="flex flex-col justify-between space-y-4">
@@ -843,6 +849,42 @@
             selectedItems: []
         };
 
+        // --- Dynamic Garment Color Preview Visuals ---
+        function getSelectedColorMeta(category, colorName) {
+            const list = catalogConfig[category]?.colors || [];
+            return list.find(c => c.name === colorName) || { name: colorName || 'Black', hex: '#09090b', border: '#3f3f46' };
+        }
+
+        function getColorPreviewVisuals(colorName) {
+            switch (colorName) {
+                case 'White':
+                    return {
+                        backdropBg: '#f4f4f5',
+                        tintCss: 'background: rgba(255, 255, 255, 0.22); mix-blend-mode: screen;',
+                        imgFilter: 'brightness(1.16) contrast(1.04)'
+                    };
+                case 'Pink':
+                    return {
+                        backdropBg: '#500724',
+                        tintCss: 'background: linear-gradient(135deg, rgba(244, 114, 182, 0.34), rgba(236, 72, 153, 0.24)); mix-blend-mode: color;',
+                        imgFilter: 'saturate(1.15) brightness(1.04)'
+                    };
+                case 'Red':
+                    return {
+                        backdropBg: '#450a0a',
+                        tintCss: 'background: linear-gradient(135deg, rgba(239, 68, 68, 0.36), rgba(185, 28, 28, 0.26)); mix-blend-mode: color;',
+                        imgFilter: 'saturate(1.2) contrast(1.05)'
+                    };
+                case 'Black':
+                default:
+                    return {
+                        backdropBg: '#09090b',
+                        tintCss: 'background: rgba(9, 9, 11, 0.08);',
+                        imgFilter: 'none'
+                    };
+            }
+        }
+
         // --- UI & Clipboard Helpers ---
         function showToast(msg) {
             const toast = document.getElementById('toast-notification');
@@ -960,6 +1002,30 @@
 
         let activeProductViewItem = null;
 
+        function applyProductViewColorPreview() {
+            const frameEl = document.getElementById('pv-preview-frame');
+            const imgEl = document.getElementById('pv-image');
+            const tintEl = document.getElementById('pv-color-tint');
+            const dotEl = document.getElementById('pv-color-dot');
+            const textEl = document.getElementById('pv-color-pill-text');
+            if (!frameEl || !imgEl || !tintEl) return;
+
+            const colorMeta = getSelectedColorMeta(state.category, state.color);
+            const visuals = getColorPreviewVisuals(state.color);
+
+            frameEl.style.backgroundColor = visuals.backdropBg;
+            imgEl.style.filter = visuals.imgFilter;
+            tintEl.style.cssText = visuals.tintCss;
+
+            if (dotEl) {
+                dotEl.style.backgroundColor = colorMeta.hex;
+                dotEl.style.borderColor = colorMeta.border;
+            }
+            if (textEl) {
+                textEl.textContent = `${state.color} • ${state.size}`;
+            }
+        }
+
         function openProductViewModal(item) {
             activeProductViewItem = item;
             const modal = document.getElementById('product-view-modal');
@@ -983,6 +1049,7 @@
             }
 
             renderProductViewOptions();
+            applyProductViewColorPreview();
             modal.classList.remove('hidden');
         }
 
@@ -1004,7 +1071,9 @@
                 btn.onclick = () => {
                     state.color = colorObj.name;
                     renderColors();
+                    renderDesignSlots();
                     renderProductViewOptions();
+                    applyProductViewColorPreview();
                     updateSummaryDisplay();
                 };
                 btn.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
@@ -1027,7 +1096,9 @@
                 btn.onclick = () => {
                     state.size = sizeVal;
                     renderSizes();
+                    renderDesignSlots();
                     renderProductViewOptions();
+                    applyProductViewColorPreview();
                     updateSummaryDisplay();
                 };
                 btn.className = `px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
@@ -1285,6 +1356,8 @@
             const statusBadge = document.getElementById('collection-status-badge');
             const slotHelper = document.getElementById('design-slot-helper');
             const items = storeData.collections[state.category] || [];
+            const colorMeta = getSelectedColorMeta(state.category, state.color);
+            const colorVisuals = getColorPreviewVisuals(state.color);
 
             grid.innerHTML = '';
 
@@ -1298,7 +1371,7 @@
             }
 
             slotHelper.textContent = items.length > 0
-                ? 'Tap any design to view details before adding'
+                ? `Previewing in ${state.color} — Tap any design to view`
                 : 'Empty Slots — Ready for Images';
 
             items.forEach((item) => {
@@ -1310,16 +1383,22 @@
                 const card = document.createElement('button');
                 card.type = 'button';
                 card.onclick = () => openProductViewModal(item);
-                card.className = `aspect-[4/5] rounded-xl border-2 overflow-hidden relative group flex flex-col justify-end text-left transition-all cursor-pointer ${
+                card.style.backgroundColor = colorVisuals.backdropBg;
+                card.className = `aspect-[4/5] rounded-xl border-2 overflow-hidden relative group flex flex-col justify-end text-left transition-all duration-300 cursor-pointer ${
                     totalSelectedForDesign > 0
                         ? 'border-yellow-400 ring-2 ring-yellow-400/30'
-                        : 'border-zinc-800 hover:border-zinc-600 bg-zinc-900'
+                        : 'border-zinc-800 hover:border-zinc-600'
                 }`;
 
                 card.innerHTML = `
-                    <img src="${item.image}" alt="${item.title}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/400x500/18181b/eab308?text=GADELA'">
+                    <img src="${item.image}" alt="${item.title}" style="filter: ${colorVisuals.imgFilter};" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-300" onerror="this.src='https://placehold.co/400x500/18181b/eab308?text=GADELA'">
+                    <div class="absolute inset-0 pointer-events-none transition-all duration-300" style="${colorVisuals.tintCss}"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-                    ${totalSelectedForDesign > 0 ? `<span class="absolute top-2 right-2 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">Selected (×${totalSelectedForDesign})</span>` : ''}
+                    <span class="absolute top-2 left-2 z-10 inline-flex items-center gap-1 bg-black/75 border border-zinc-700/80 px-2 py-0.5 rounded-full text-[10px] font-semibold text-zinc-100 backdrop-blur-sm">
+                        <span class="w-2 h-2 rounded-full inline-block" style="background-color: ${colorMeta.hex}; border: 1px solid ${colorMeta.border};"></span>
+                        <span>${state.color}</span>
+                    </span>
+                    ${totalSelectedForDesign > 0 ? `<span class="absolute top-2 right-2 z-10 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">Selected (×${totalSelectedForDesign})</span>` : ''}
                     <div class="relative z-10 p-2.5">
                         <p class="text-xs font-bold text-white leading-tight truncate">${item.title}</p>
                         ${item.price ? `<p class="text-[11px] font-semibold text-yellow-400 mt-0.5">${item.price}</p>` : ''}
